@@ -1,12 +1,23 @@
 // Module dependencies.
 var bodyParser = require('body-parser'),
     express = require('express'),
-    url = require('url');
+    url = require('url'),
+    HServer = require('./server/HServer');
 
-function App(db, port, prefix) {
+function App(name, db, port, prefix) {
+  if (typeof(prefix)==='undefined') prefix = '';
+  if (typeof(name)==='function') {
+    port = db;
+    db = name;
+    name = undefined;
+  }
+  if (typeof(name)==='undefined') name = "Node Haystack app";
+  if (typeof(port)==='undefined') port = 80;
+
+  this.name = name;
   this.app = express();
   this.app.set('port', port);
-  this.db = db;
+  this.db = new db(name);
   this.prefix = prefix.length>0 ? '/' + prefix : prefix;
 }
 module.exports = App;
@@ -14,7 +25,7 @@ module.exports = App;
 App.prototype.start = function() {
   var self = this;
   // setup body parser
-  self.app.use(bodyParser.text());
+  self.app.use(bodyParser.text({ type: '*/*' }));
   self.app.all(self.prefix + '*', function(req, res) {
     // if root, then redirect to {haystack}/about
     var path = url.parse(req.url).pathname
@@ -54,7 +65,7 @@ App.prototype.start = function() {
 
     if (host.length === 0 || host === "::") host = "localhost";
 
-    console.log('Node Haystack app listening at http://%s:%s', host, port);
+    console.log(self.name + ' listening at http://%s:%s', host, port);
 
   });
 }
