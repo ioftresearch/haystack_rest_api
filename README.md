@@ -73,3 +73,11 @@ run from console
 
     node app.js
 
+### Known Issues
+
+HOp.js - line 152: We should be able to pass in the request object itself and read from it's stream.  This would remove
+the requirement for body-parser in the example app.js.
+
+HZincWriter.js - line 86: I am getting a grid from HDictBuilder.toGrid() that has no columns.  This is only happening
+when the grid should be HGrid.EMPTY, so there is a catch here to fix the issue.  We should still figure out why
+the dict builder is return a grid with no columns though.
