@@ -1,3 +1,13 @@
+//
+// Copyright (c) 2015, Shawn Jacobson
+// Licensed under the Academic Free License version 3.0
+//
+// Ported from @see {@link https://bitbucket.org/brianfrank/haystack-java|Haystack Java Toolkit}
+//
+// History:
+//   21 Mar 2015  Shawn Jacobson  Creation
+//
+
 var HProj = require('../HProj'),
     HDateTime = require('../HDateTime'),
     HDateTimeRange = require('../HDateTimeRange'),
@@ -12,6 +22,7 @@ var HProj = require('../HProj'),
  * HServer is the interface between HServlet and a database of
  * tag based entities.  All methods on HServer must be thread safe.
  * @see {@link http://project-haystack.org/doc/Rest|Project Haystack}
+ *
  * @constructor
  */
 function HServer() {

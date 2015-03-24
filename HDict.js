@@ -1,3 +1,13 @@
+//
+// Copyright (c) 2015, Shawn Jacobson
+// Licensed under the Academic Free License version 3.0
+//
+// Ported from @see {@link https://bitbucket.org/brianfrank/haystack-java|Haystack Java Toolkit}
+//
+// History:
+//   21 Mar 2015  Shawn Jacobson  Creation
+//
+
 /**
  * HDict is an immutable map of name/HVal pairs.  Use HDictBuilder
  * to construct a HDict instance.

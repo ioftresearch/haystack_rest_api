@@ -1,3 +1,13 @@
+//
+// Copyright (c) 2015, Shawn Jacobson
+// Licensed under the Academic Free License version 3.0
+//
+// Ported from @see {@link https://bitbucket.org/brianfrank/haystack-java|Haystack Java Toolkit}
+//
+// History:
+//   21 Mar 2015  Shawn Jacobson  Creation
+//
+
 /**
  * HDictBuilder is used to construct an immutable HDict instance.
  * @see {@link http://project-haystack.org/doc/TagModel#tags|Project Haystack}

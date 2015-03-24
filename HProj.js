@@ -1,3 +1,13 @@
+//
+// Copyright (c) 2015, Shawn Jacobson
+// Licensed under the Academic Free License version 3.0
+//
+// Ported from @see {@link https://bitbucket.org/brianfrank/haystack-java|Haystack Java Toolkit}
+//
+// History:
+//   21 Mar 2015  Shawn Jacobson  Creation
+//
+
 /**
  * HProj is the common interface for HClient and HServer to provide
  * access to a database tagged entity records.

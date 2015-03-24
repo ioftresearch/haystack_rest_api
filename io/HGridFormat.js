@@ -1,10 +1,17 @@
-/**
- * HGridFormat models a format used to encode/decode HGrid.
- *
- * @see {@link http://project-haystack.org/doc/Rest#contentNegotiation|Project Haystack}
- */
+//
+// Copyright (c) 2015, Shawn Jacobson
+// Licensed under the Academic Free License version 3.0
+//
+// Ported from @see {@link https://bitbucket.org/brianfrank/haystack-java|Haystack Java Toolkit}
+//
+// History:
+//   21 Mar 2015  Shawn Jacobson  Creation
+//
 
 /**
+ * HGridFormat models a format used to encode/decode HGrid.
+ * @see {@link http://project-haystack.org/doc/Rest#contentNegotiation|Project Haystack}
+ *
  * @constructor
  * @param {string} mime
  * @param {HGridReader} reader

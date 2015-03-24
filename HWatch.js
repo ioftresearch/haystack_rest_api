@@ -1,3 +1,13 @@
+//
+// Copyright (c) 2015, Shawn Jacobson
+// Licensed under the Academic Free License version 3.0
+//
+// Ported from @see {@link https://bitbucket.org/brianfrank/haystack-java|Haystack Java Toolkit}
+//
+// History:
+//   21 Mar 2015  Shawn Jacobson  Creation
+//
+
 /**
  * HWatch models a subscription to a list of entity records.
  * Use HProj.watchOpen to create a new watch.

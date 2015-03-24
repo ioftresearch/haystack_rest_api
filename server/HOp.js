@@ -1,11 +1,18 @@
+//
+// Copyright (c) 2015, Shawn Jacobson
+// Licensed under the Academic Free License version 3.0
+//
+// Ported from @see {@link https://bitbucket.org/brianfrank/haystack-java|Haystack Java Toolkit}
+//
+// History:
+//   21 Mar 2015  Shawn Jacobson  Creation
+//
+
 /**
  * HOp is the base class for server side operations exposed by the REST API.
  * All methods on HOp must be thread safe.
- *
  * @see {@link http://project-haystack.org/doc/Ops|Project Haystack}
- */
 
-/**
  * @constructor
  */
 function HOp() {}
@@ -141,6 +148,7 @@ function postToGrid(req, res) {
   }
 
   // read the grid
+  // TODO: Fix so that only the request and not the parsed body are sent
   return format.makeReader(req.body).readGrid();
 };
 
