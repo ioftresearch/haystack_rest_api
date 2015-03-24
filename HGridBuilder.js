@@ -88,7 +88,7 @@ HGridBuilder.dictsToGrid = function(dicts, dict) {
 
   // if all dicts were null, handle special case
   // by creating a dummy column
-  if (colsByName.length === 0) {
+  if (Object.keys(colsByName).length === 0) {
     colsByName.empty = "empty";
     b.addCol("empty");
   }

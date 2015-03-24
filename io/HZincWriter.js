@@ -82,8 +82,6 @@ function writeRow(grid, row) {
  * @param {HGrid} grid
  */
 HZincWriter.prototype.writeGrid = function(grid) {
-// TODO: Figure out why I have a grid with no columns
-  if (grid.numCols() === 0) grid = HGrid.EMPTY;
   // meta
   out.write("ver:\"2.0\"");
   writeMeta(grid.meta());
