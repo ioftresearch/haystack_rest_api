@@ -69,11 +69,6 @@ app.js
 
     });
 
-
-    var app = new hs.app('Node Haystack Toolkit', hs.TestDatabase, 3000, '');
-
-    app.start();
-
 run from console
 
     node app.js

@@ -28,9 +28,8 @@ var os = require('os'),
  * HDatabase with some test entities.
  * @constructor
  */
-function TestDatabase(name) {
+function TestDatabase() {
   this.recs = {};
-  this.name = name;
   this.addSite("A", "Richmond", "VA", 1000);
   this.addSite("B", "Richmond", "VA", 2000);
   this.addSite("C", "Washington", "DC", 3000);
@@ -140,15 +139,16 @@ TestDatabase.hostName = function() {
 };
 
 TestDatabase.prototype.onAbout = function(callback) {
-  callback(null, new HDictBuilder()
-      .add("serverName", TestDatabase.hostName())
-      .add("vendorName", "Lynxspring, Inc.")
-      .add("vendorUri", HUri.make("http://www.lynxspring.com/"))
-      .add("productName", this.name)
-      .add("productVersion", "2.0.0")
-      .add("productUri", HUri.make("https://bitbucket.org/lynxspring/nodehaystack/"))
-      .toDict());
+  callback(null, aboutdict);
 };
+var aboutdict = new HDictBuilder()
+    .add("serverName", TestDatabase.hostName())
+    .add("vendorName", "Lynxspring, Inc.")
+    .add("vendorUri", HUri.make("http://www.lynxspring.com/"))
+    .add("productName", "Node Haystack Toolkit")
+    .add("productVersion", "2.0.0")
+    .add("productUri", HUri.make("https://bitbucket.org/lynxspring/nodehaystack/"))
+    .toDict();
 
 //////////////////////////////////////////////////////////////////////////
 //Reads
