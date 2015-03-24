@@ -1,4 +1,3 @@
-module.exports.app = require('./app');
 module.exports.HBin = require('./HBin');
 module.exports.HBool = require('./HBool');
 module.exports.HCol = require('./HCol');
