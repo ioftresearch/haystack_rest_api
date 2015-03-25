@@ -44,12 +44,34 @@ var moment = require('moment-timezone'),
  * @return {float}
  */
 HDateTime.prototype.millis = function() {
-  if (this.mils <= 0) {
-    var d = utcDate(this.date.year, this.date.month, this.date.day, this.time.hour, this.time.min, this.time.sec, this.time.ms);
-    this.mils = d.getTime();
-  }
+  if (this.mils <= 0)
+    this.mils = parseInt(getMomentDate(this.date, this.time, this.tz).valueOf());
+
   return this.mils;
 };
+
+function getMomentDate(date, time, tz) {
+  // convert to designated timezone
+  var ds = date.year + "-";
+  if (date.month<10) ds += "0";
+  ds += date.month + "-";
+  if (date.day<10) ds += "0";
+  ds += date.day + " "
+  if (time.hour<10) ds += "0";
+  ds += time.hour + ":"
+  if (time.min<10) ds += "0";
+  ds += time.min + ":"
+  if (time.sec<10) ds += "0";
+  ds += time.sec;
+  if (time.ms>0) {
+    ds += ".";
+    if (time.ms<100) ds += "0";
+    if (time.ms<10) ds += "0";
+    ds += time.ms;
+  }
+
+  return moment.tz(ds, tz.js.name);
+}
 
 /**
  * Encode as "YYYY-MM-DD'T'hh:mm:ss.FFFz zzzz"
@@ -103,19 +125,6 @@ HDateTime.prototype.compareTo = function(that) {
   return 0;
 };
 
-function utcDate(year, month, day, hour, min, sec, ms) {
-  var d = new Date();
-  d.setUTCFullYear(year);
-  d.setUTCMonth(month - 1);
-  d.setUTCDate(day);
-  d.setUTCHours(hour);
-  d.setUTCMinutes(min);
-  d.setUTCSeconds(sec);
-  d.setUTCMilliseconds(ms);
-
-  return d;
-}
-
 /**
  * Construct from various values
  * @static
@@ -145,17 +154,12 @@ HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
   } else if (arg6 instanceof HTimeZone) {
     return HDateTime.make(HDate.make(arg1, arg2, arg3), HTime.make(arg4, arg5, 0), arg6, arg7);
   } else if (arg3 instanceof HTimeZone) {
-    // use Date to decode millis to fields
-    d = utcDate(arg1.year, arg1.month, arg1.day, arg2.hour, arg2.min, arg2.sec, arg2.ms);
+    var m = getMomentDate(arg1, arg2, arg3);
     tzOffset = arg4;
-    if (typeof(tzOffset) === 'undefined') {
-      // convert to designated timezone
-      d = moment(d).tz(arg3.js.name);
-      tzOffset = d.utcOffset() * 60;
-    }
+    if (typeof(tzOffset) === 'undefined') tzOffset = m.utcOffset() * 60;
 
     ts = new HDateTime(arg1, arg2, arg3, tzOffset);
-    ts.mils = d.valueOf() + (tzOffset * -1000);
+    ts.mils = parseInt(m.valueOf());
 
     return ts;
   } else if (HVal.typeis(arg1, 'string', String)) {
@@ -170,7 +174,25 @@ HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
 
     d = new Date(arg1);
     // convert to designated timezone
-    var m = moment(d).tz(tz.js.name);
+    var ds = d.getUTCFullYear() + "-";
+    if ((d.getUTCMonth()+1)<10) ds += "0";
+    ds += (d.getUTCMonth() + 1) + "-";
+    if (d.getUTCDate()<10) ds += "0";
+    ds += d.getUTCDate() + "T"
+    if (d.getUTCHours()<10) ds += "0";
+    ds += d.getUTCHours() + ":"
+    if (d.getUTCMinutes()<10) ds += "0";
+    ds += d.getUTCMinutes() + ":"
+    if (d.getUTCSeconds()<10) ds += "0";
+    ds += d.getUTCSeconds();
+    if (d.getUTCMilliseconds()>0) {
+      ds += ".";
+      if (d.getUTCMilliseconds()<100) ds += "0";
+      if (d.getUTCMilliseconds()<10) ds += "0";
+      ds += d.getUTCMilliseconds();
+    }
+
+    var m = moment.tz(ds + "Z", tz.js.name);
     tzOffset = m.utcOffset() * 60;
 
     ts = HDateTime.make(HDate.make(m.year(), m.month() + 1, m.date()), HTime.make(m.hour(), m.minute(), m.second(), m.millisecond()), tz, tzOffset);
