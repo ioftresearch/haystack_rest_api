@@ -55,9 +55,11 @@ function init() {
 }
 
 function done(c) {
+  if (c===null) return true;
   return (isNaN(HVal.cc(c)) || HVal.cc(c) < 0);
 }
 function notdone(c, eq) {
+  if (c===null) return false;
   if (eq) return (!isNaN(HVal.cc(c)) && HVal.cc(c) >= 0);
   return (!isNaN(HVal.cc(c)) && HVal.cc(c) > 0);
 }
@@ -114,26 +116,32 @@ var ID_START = 0x20;
 var ID = 0x40;
 
 function isDigit(c) {
+  if (c===null) return false;
   c = HVal.cc(c);
   return c > 0 && c < 128 && (charTypes[c] & DIGIT) !== 0;
 }
 function isAlpha(c) {
+  if (c===null) return false;
   c = HVal.cc(c);
   return c > 0 && c < 128 && (charTypes[c] & ALPHA) !== 0;
 }
 function isUnit(c) {
+  if (c===null) return false;
   c = HVal.cc(c);
   return c > 0 && (c >= 128 || (charTypes[c] & UNIT) !== 0);
 }
 function isTz(c) {
+  if (c===null) return false;
   c = HVal.cc(c);
   return c > 0 && c < 128 && (charTypes[c] & TZ) !== 0;
 }
 function isIdStart(c) {
+  if (c===null) return false;
   c = HVal.cc(c);
   return c > 0 && c < 128 && (charTypes[c] & ID_START) !== 0;
 }
 function isId(c) {
+  if (c===null) return false;
   c = HVal.cc(c);
   return c > 0 && c < 128 && (charTypes[c] & ID) !== 0;
 }
@@ -665,66 +673,86 @@ function readMeta(b) {
 /** Read grid from the stream.
  * @return {HGrid}
  */
-HZincReader.prototype.readGrid = function() {
-  var b = new HGridBuilder();
+HZincReader.prototype.readGrid = function(callback) {
+  try {
+    var b = new HGridBuilder();
 
-  // meta line
-  readVer();
-  readMeta(b.meta());
-  consumeNewline();
+    // meta line
+    readVer();
+    readMeta(b.meta());
+    consumeNewline();
 
-  // read cols
-  var numCols = 0;
-  while (true) {
-    var name = readId();
-    skipSpace();
-    numCols++;
-    readMeta(b.addCol(name));
-    if (cur !== ',') break;
-    consume();
-    skipSpace();
-  }
-  consumeNewline();
-
-  // rows
-  while (cur !== '\n' && notdone(cur, false)) {
-    var cells = [];
-    var i;
-    for (i = 0; i < numCols; ++i) cells[i] = null;
-    for (i = 0; i < numCols; ++i) {
+    // read cols
+    var numCols = 0;
+    while (true) {
+      var name = readId();
       skipSpace();
-      if (cur !== ',' && cur !== '\n') cells[i] = readVal();
+      numCols++;
+      readMeta(b.addCol(name));
+      if (cur !== ',') break;
+      consume();
       skipSpace();
-      if (i + 1 < numCols) {
-        if (cur !== ',') throw errChar("Expecting comma in row");
-        consume();
-      }
     }
     consumeNewline();
-    b.addRow(cells);
-  }
-  if (cur === '\n') consumeNewline();
 
-  return b.toGrid();
+    // rows
+    while (cur !== '\n' && notdone(cur, false)) {
+      var cells = [];
+      var i;
+      for (i = 0; i < numCols; ++i) cells[i] = null;
+      for (i = 0; i < numCols; ++i) {
+        skipSpace();
+        if (cur !== ',' && cur !== '\n') cells[i] = readVal();
+        skipSpace();
+        if (i + 1 < numCols) {
+          if (cur !== ',') throw errChar("Expecting comma in row");
+          consume();
+        }
+      }
+      consumeNewline();
+      b.addRow(cells);
+    }
+    if (cur === '\n') consumeNewline();
+
+    callback(null, b.toGrid());
+  } catch (err) {
+    callback(err);
+  }
 };
 
 /** Read list of grids from the stream.
  * @return {HGrid[]}
  */
-HZincReader.prototype.readGrids = function() {
-  var acc = [];
-  while (notdone(cur, false)) acc[acc.length] = this.readGrid();
-  return acc;
+HZincReader.prototype.readGrids = function(callback) {
+  _readGrid(this, [], callback);
 };
+function _readGrid(self, acc, callback) {
+  if (notdone(cur, false)) {
+    self.readGrid(function(err, grid) {
+      if (err) {
+        callback(err);
+      } else {
+        acc[acc.length] = grid;
+        _readGrid(self, acc, callback);
+      }
+    });
+  } else {
+    callback(null, acc);
+  }
+}
 
 /** Read set of name/value tags as dictionary
  * @return {HDict}
  */
-HZincReader.prototype.readDict = function() {
-  var b = new HDictBuilder();
-  readMeta(b);
-  if (notdone(cur, true)) throw errChar("Expected end of stream");
-  return b.toDict();
+HZincReader.prototype.readDict = function(callback) {
+  try {
+    var b = new HDictBuilder();
+    readMeta(b);
+    if (notdone(cur, true)) throw errChar("Expected end of stream");
+    callback(null, b.toDict());
+  } catch (err) {
+    callback(err);
+  }
 };
 
 /**

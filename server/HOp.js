@@ -60,32 +60,43 @@ HOp.prototype.onServiceOp = function(db, req, res, callback) {
     callback(new Error("Unsupported Operation: " + this.contructor.name + ".onService(HServer,HGrid)"));
   } else {
     // parse GET query parameters or POST body into grid
+    var self = this;
     var reqGrid = HGrid.EMPTY;
     var method = req.method;
-    if (method === "GET") reqGrid = getToGrid(req);
-    if (method === "POST") reqGrid = postToGrid(req, res);
-    if (typeof(reqGrid) === 'undefined' && reqGrid === null) return;
-
-    // route to onService(HServer, HGrid)
-    var self = this;
-    this.onService(db, reqGrid, function(err, resGrid) {
-      if (err) resGrid = HGridBuilder.errToGrid(err);
-      // figure out best format to use for response
-      var format = toFormat(req);
-
-      // send response
-      res.statusCode = 200;
-      if (HVal.startsWith(format.mime, "text/"))
-        res.setHeader("Content-Type", format.mime + "; charset=utf-8");
-      else
-        res.setHeader("Content-Type", format.mime);
-
-      var out = format.makeWriter(res);
-      out.writeGrid(resGrid);
-      res.end();
+    if (method === "GET") getToGrid(req, function(err, reqGrid) {
+      if (err) callback(err);
+      else _onServiceOp(self, db, req, res, reqGrid, callback);
+    });
+    if (method === "POST") reqGrid = postToGrid(req, res, function(err, reqGrid) {
+      if (err) callback(err);
+      else _onServiceOp(self, db, req, res, reqGrid, callback);
     });
   }
 };
+function _onServiceOp(self, db, req, res, reqGrid, callback) {
+  if (typeof(reqGrid) === 'undefined' && reqGrid === null) {
+    callback();
+    return;
+  }
+
+  // route to onService(HServer, HGrid)
+  var cb = callback;
+  self.onService(db, reqGrid, function(err, resGrid) {
+    if (err) resGrid = HGridBuilder.errToGrid(err);
+    // figure out best format to use for response
+    var format = toFormat(req);
+
+    // send response
+    res.statusCode = 200;
+    if (HVal.startsWith(format.mime, "text/"))
+      res.setHeader("Content-Type", format.mime + "; charset=utf-8");
+    else
+      res.setHeader("Content-Type", format.mime);
+
+    var out = format.makeWriter(res);
+    out.writeGrid(resGrid, cb);
+  });
+}
 /**
  * Service the request and return response.
  * @param {HServer} db
@@ -102,25 +113,30 @@ HOp.prototype.onService = function(db, grid) {
  * @param {Express.Request} req
  * @return {HGrid}
  */
-function getToGrid(req) {
-  var query = url.parse(req.url, true);
+function getToGrid(req, callback) {
+  try {
+    var query = url.parse(req.url, true);
 
-  var keys = Object.keys(query);
-  if (keys.legth === 0) return HGrid.EMPTY;
+    var keys = Object.keys(query);
+    if (keys.legth === 0) return HGrid.EMPTY;
 
-  var b = new HDictBuilder();
-  for (var i = 0; i < keys.length; i++) {
-    var valStr = query[keys[i]];
+    var b = new HDictBuilder();
+    for (var i = 0; i < keys.length; i++) {
+      var valStr = query[keys[i]];
 
-    var val;
-    try {
-      val = new HZincReader(valStr).readScalar();
-    } catch (e) {
-      val = HStr.make(valStr);
+      var val;
+      try {
+        val = new HZincReader(valStr).readScalar();
+      } catch (e) {
+        val = HStr.make(valStr);
+      }
+      b.add(keys[i], val);
     }
-    b.add(keys[i], val);
+
+    callback(null, HGridBuilder.dictToGrid(b.toDict()));
+  } catch (err) {
+    callback(err);
   }
-  return HGridBuilder.dictToGrid(b.toDict());
 };
 
 /**
@@ -130,7 +146,7 @@ function getToGrid(req) {
  * @param {Express.Response} res
  * @return {HGrid}
  */
-function postToGrid(req, res) {
+function postToGrid(req, res, callback) {
   // get content type
   var mime = req.headers["content-type"];
   if (typeof(mime) === 'undefined' || mime === null) {
@@ -148,8 +164,10 @@ function postToGrid(req, res) {
   }
 
   // read the grid
-  // TODO: Fix so that only the request and not the parsed body are sent
-  return format.makeReader(req.body).readGrid();
+  var r = req;
+  // if we have an app then Express is being used and we need the body
+  if (req.app) r = req.body;
+  format.makeReader(r).readGrid(callback);
 };
 
 /**
@@ -161,7 +179,7 @@ function postToGrid(req, res) {
  */
 function toFormat(req) {
   var format = null;
-  var accept = req.header.accept;
+  var accept = req.headers.accept;
   if (typeof(accept) !== 'undefined' && accept !== null) {
     var mimes = HStr.split(accept, ',', true);
     for (var i = 0; i < mimes.length; ++i) {

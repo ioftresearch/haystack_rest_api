@@ -22,6 +22,6 @@ module.exports = HGridReader;
  * @abstract
  * @return {HGrid}
  */
-HGridReader.prototype.readGrid = function() {
+HGridReader.prototype.readGrid = function(callback) {
   throw new Error('must be implemented by subclass!');
 };

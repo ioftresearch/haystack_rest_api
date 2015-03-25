@@ -22,6 +22,6 @@ module.exports = HGridWriter;
  * @abstract
  * @param {HGrid}
  */
-HGridWriter.prototype.writeGrid = function(grid) {
+HGridWriter.prototype.writeGrid = function(grid, callback) {
   throw new Error('must be implemented by subclass!');
 };

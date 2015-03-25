@@ -73,13 +73,16 @@ function verifyGrid(str, meta, cols, rows) {
     }
   }
   // read from zinc
-  var grid = new HZincReader(str).readGrid();
-  verifyGridEq(grid, meta, cols, rows);
+  new HZincReader(str).readGrid(function(err, grid) {
+    verifyGridEq(grid, meta, cols, rows);
 
-  // write grid and verify we can parse that too
-  var writeStr = HZincWriter.gridToString(grid);
-  var writeGrid = new HZincReader(writeStr).readGrid();
-  verifyGridEq(writeGrid, meta, cols, rows);
+    // write grid and verify we can parse that too
+    HZincWriter.gridToString(grid, function(err, writeStr) {
+      new HZincReader(writeStr).readGrid(function(err, writeGrid) {
+        verifyGridEq(writeGrid, meta, cols, rows);
+      });
+    });
+  });
 }
 
 ZincTest.test = function() {

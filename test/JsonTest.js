@@ -26,9 +26,11 @@ function isNull(obj) {
 }
 function verifyGrid(zinc, json) {
   // read from zinc
-  var grid = new HZincReader(zinc).readGrid();
-  var jsonString = HJsonWriter.gridToString(grid);
-  Test.verifyEq(jsonString, json);
+  new HZincReader(zinc).readGrid(function(err, grid) {
+    HJsonWriter.gridToString(grid, function(err, jsonString) {
+      Test.verifyEq(jsonString, json);
+    });
+  });
 }
 
 JsonTest.test = function() {

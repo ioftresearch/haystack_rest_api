@@ -122,11 +122,12 @@ DictTest.testEquality = function() {
 };
 
 function verifyZinc(s, tags) {
-  var x = new HZincReader(s).readDict();
-  if (tags.size() <= 1) {
-    Test.verifyEq(tags.toZinc(), s);
-  }
-  Test.verifyEq(x, tags);
+  new HZincReader(s).readDict(function(err, dict) {
+    if (tags.size() <= 1) {
+      Test.verifyEq(tags.toZinc(), s);
+    }
+    Test.verifyEq(dict, tags);
+  });
 }
 
 DictTest.testZinc = function() {

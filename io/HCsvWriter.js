@@ -137,19 +137,25 @@ function writeRow(self, grid, row) {
  * Write a grid
  * @param {HGrid} grid
  */
-HCsvWriter.prototype.writeGrid = function(grid) {
-  var i;
-  // cols
-  for (i = 0; i < grid.numCols(); ++i) {
-    if (i > 0) this.out.write(delimiter);
-    this.writeCell(grid.col(i).dis());
-  }
-  this.out.write('\n');
-
-  // rows
-  for (i = 0; i < grid.numRows(); ++i) {
-    writeRow(this, grid, grid.row(i));
+HCsvWriter.prototype.writeGrid = function(grid, callback) {
+  try {
+    var i;
+    // cols
+    for (i = 0; i < grid.numCols(); ++i) {
+      if (i > 0) this.out.write(delimiter);
+      this.writeCell(grid.col(i).dis());
+    }
     this.out.write('\n');
+
+    // rows
+    for (i = 0; i < grid.numRows(); ++i) {
+      writeRow(this, grid, grid.row(i));
+      this.out.write('\n');
+    }
+
+    callback();
+  } catch(err) {
+    callback(err);
   }
 };
 
@@ -159,8 +165,9 @@ HCsvWriter.prototype.writeGrid = function(grid) {
  * @param {HGrid} grid
  * @return {string}
  */
-HCsvWriter.gridToString = function(grid) {
+HCsvWriter.gridToString = function(grid, callback) {
   var out = new streams.WritableStream();
-  new HCsvWriter(out).writeGrid(grid);
-  return out.toString();
+  new HCsvWriter(out).writeGrid(grid, function(err) {
+    callback(err, out.toString());
+  });
 };

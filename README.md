@@ -10,7 +10,56 @@ install nodehaystack via console from node application location
 
     npm install nodehaystack
 
-app.js
+app.js - standard HTTP (no Express)
+
+    // Module dependencies .
+    var hs = require('nodehaystack'),
+        http = require('http'),
+        url = require('url');
+
+    // get the database
+    var db = new hs.TestDatabase();
+
+    var server = http.createServer(function (req, res) {
+      req.setEncoding('utf8');
+      req.on('readable', function() {
+        // if root, then redirect to {haystack}/about
+        var path = url.parse(req.url).pathname;
+        if (typeof(path) === 'undefined' || path === null || path.length === 0 || path === "/") {
+          res.redirect("/about");
+          return;
+        }
+
+        // parse URI path into "/{opName}/...."
+        var slash = path.indexOf('/', 1);
+        if (slash < 0) slash = path.length;
+        var opName = path.substring(1, slash);
+
+        // resolve the op
+        db.op(opName, false, function(err, op) {
+          if (typeof(op) === 'undefined' || op === null) {
+            res.status(404);
+            res.send("404 - Not Found");
+            return;
+          }
+
+          // route to the op
+          op.onServiceOp(db, req, res, function(err) {
+            if (err) {
+              console.log(err.stack);
+              throw err;
+            }
+
+            res.end();
+          });
+        });
+      });
+    });
+
+    server.listen(3000);
+    console.log('Node Haystack Toolkit listening at http://localhost:3000');
+
+app.js - using Express
 
     // Module dependencies.
     var hs = require('nodehaystack'),
@@ -51,9 +100,11 @@ app.js
         // route to the op
         op.onServiceOp(db, req, res, function(err) {
           if (err) {
-            console.log(e.stack);
-            throw e;
+            console.log(err.stack);
+            throw err;
           }
+
+          res.end();
         });
       });
     });
@@ -65,7 +116,7 @@ app.js
 
       if (host.length === 0 || host === "::") host = "localhost";
 
-      console.log('Node Haystack app listening at http://%s:%s', host, port);
+      console.log('Node Haystack Toolkit listening at http://%s:%s', host, port);
 
     });
 
@@ -73,7 +124,3 @@ run from console
 
     node app.js
 
-### Known Issues
-
-HOp.js - line 152: We should be able to pass in the request object itself and read from it's stream.  This would remove
-the requirement for body-parser in the example app.js.

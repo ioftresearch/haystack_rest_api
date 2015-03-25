@@ -81,24 +81,30 @@ function writeRow(grid, row) {
  * Write a grid
  * @param {HGrid} grid
  */
-HZincWriter.prototype.writeGrid = function(grid) {
-  // meta
-  out.write("ver:\"2.0\"");
-  writeMeta(grid.meta());
-  out.write('\n');
-
-  var i;
-  // cols
-  for (i = 0; i < grid.numCols(); ++i) {
-    if (i > 0) out.write(',');
-    writeCol(grid.col(i));
-  }
-  out.write('\n');
-
-  // rows
-  for (i = 0; i < grid.numRows(); ++i) {
-    writeRow(grid, grid.row(i));
+HZincWriter.prototype.writeGrid = function(grid, callback) {
+  try {
+    // meta
+    out.write("ver:\"2.0\"");
+    writeMeta(grid.meta());
     out.write('\n');
+
+    var i;
+    // cols
+    for (i = 0; i < grid.numCols(); ++i) {
+      if (i > 0) out.write(',');
+      writeCol(grid.col(i));
+    }
+    out.write('\n');
+
+    // rows
+    for (i = 0; i < grid.numRows(); ++i) {
+      writeRow(grid, grid.row(i));
+      out.write('\n');
+    }
+
+    callback();
+  } catch (err) {
+    console.log("writeGridError");
   }
 };
 
@@ -108,8 +114,9 @@ HZincWriter.prototype.writeGrid = function(grid) {
  * @param {HGrid} grid
  * @return {string}
  */
-HZincWriter.gridToString = function(grid) {
+HZincWriter.gridToString = function(grid, callback) {
   var out = new streams.WritableStream();
-  new HZincWriter(out).writeGrid(grid);
-  return out.toString();
+  new HZincWriter(out).writeGrid(grid, function(err) {
+    callback(err, out.toString());
+  });
 };

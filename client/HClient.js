@@ -9,6 +9,7 @@
 //
 
 var http = require('http'),
+    util = require('util'),
     crypto = require('crypto'),
     HDictBuilder = require('../HDictBuilder'),
     HGrid = require('../HGrid'),
@@ -48,6 +49,7 @@ function HClient(uri, user, pass) {
   this.authProperty = null;
   this.cookieProperty = null;
   this.uwatches = {};
+  this.isExpress = false;
 
   /** Base URI for connection such as "http://host/api/demo/".
    This string always ends with slash. */
@@ -341,6 +343,8 @@ function authenticate(t, callback) {
   var url = t.uri + "about";
 
   http.get(url, function(res) {
+    if (res.headers["x-powered-by"]==='Express') t.isExpress = true;
+
     var folioAuthUri = res.headers["folio-auth-api-uri"];
     if (typeof(folioAuthUri) !== 'undefined' && folioAuthUri !== null) {
       authenticateFolio(t, res, callback);
@@ -550,7 +554,7 @@ function postString(t, op, data, callback) {
   });
   // write the data
   req.write(data);
-  req.end();
+  if (t.isExpress) req.end();
 }
 
 /**
@@ -563,13 +567,19 @@ function postString(t, op, data, callback) {
  * @returns {HGrid}
  */
 function postGrid(t, op, req, callback) {
-  var reqStr = HZincWriter.gridToString(req);
-  postString(t, op, reqStr, function(err, str) {
+  HZincWriter.gridToString(req, function(err, reqStr) {
     if (err) {
       callback(err);
       return;
     }
-    callback(null, new HZincReader(str).readGrid());
+
+    postString(t, op, reqStr, function(err, str) {
+      if (err) {
+        callback(err);
+      } else {
+        new HZincReader(str).readGrid(callback);
+      }
+    });
   });
 }
 
@@ -642,18 +652,25 @@ HClient.prototype.evalAll = function(req, checked, callback) {
     req = b.toGrid();
   }
 
-  var reqStr = HZincWriter.gridToString(req);
-  postString(this, "evalAll", reqStr, function(err, str) {
-    var res = new HZincReader(str).readGrids();
-    if (checked) {
-      for (i = 0; i < res.length; ++i) {
-        if (res[i].isErr()) {
-          callback(new Error(res[i]));
-          return;
-        }
-      }
+  HZincWriter.gridToString(req, function(err, reqStr) {
+    if (err) {
+      callback(err);
+    } else {
+
+      postString(this, "evalAll", reqStr, function(err, str) {
+        new HZincReader(str).readGrids(function (err, res) {
+          if (checked) {
+            for (i = 0; i < res.length; ++i) {
+              if (res[i].isErr()) {
+                callback(new Error(res[i]));
+                return;
+              }
+            }
+          }
+          callback(null, res);
+        });
+      });
     }
-    callback(null, res);
   });
 };
 

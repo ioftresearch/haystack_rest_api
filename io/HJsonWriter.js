@@ -84,38 +84,42 @@ function writeDict(self, dict) {
  *
  * @param {HGrid} grid
  */
-HJsonWriter.prototype.writeGrid = function(grid) {
-  // grid begin
-  this.out.write("{\n");
+HJsonWriter.prototype.writeGrid = function(grid, callback) {
+  try {
+    // grid begin
+    this.out.write("{\n");
 
-  // meta
-  this.out.write("\"meta\": {\"ver\":\"2.0\"");
-  writeDictTags(this, grid.meta(), false);
-  this.out.write("},\n");
+    // meta
+    this.out.write("\"meta\": {\"ver\":\"2.0\"");
+    writeDictTags(this, grid.meta(), false);
+    this.out.write("},\n");
 
-  var i;
-  // columns
-  this.out.write("\"cols\":[\n");
-  for (i = 0; i < grid.numCols(); ++i) {
-    if (i > 0) this.out.write(",\n");
-    var col = grid.col(i);
-    this.out.write("{\"name\":");
-    this.out.write(HStr.toCode(col.name()));
-    writeDictTags(this, col.meta(), false);
-    this.out.write("}");
+    var i;
+    // columns
+    this.out.write("\"cols\":[\n");
+    for (i = 0; i < grid.numCols(); ++i) {
+      if (i > 0) this.out.write(",\n");
+      var col = grid.col(i);
+      this.out.write("{\"name\":");
+      this.out.write(HStr.toCode(col.name()));
+      writeDictTags(this, col.meta(), false);
+      this.out.write("}");
+    }
+    this.out.write("\n],\n");
+
+    // rows
+    this.out.write("\"rows\":[\n");
+    for (i = 0; i < grid.numRows(); ++i) {
+      if (i > 0) this.out.write(",\n");
+      writeDict(this, grid.row(i));
+    }
+    this.out.write("\n]\n");
+
+    // grid end
+    this.out.write("}\n");
+  } catch (err) {
+    callback(err);
   }
-  this.out.write("\n],\n");
-
-  // rows
-  this.out.write("\"rows\":[\n");
-  for (i = 0; i < grid.numRows(); ++i) {
-    if (i > 0) this.out.write(",\n");
-    writeDict(this, grid.row(i));
-  }
-  this.out.write("\n]\n");
-
-  // grid end
-  this.out.write("}\n");
 };
 
 /**
@@ -124,8 +128,9 @@ HJsonWriter.prototype.writeGrid = function(grid) {
  * @param {HGrid} grid
  * @return {string}
  */
-HJsonWriter.gridToString = function(grid) {
+HJsonWriter.gridToString = function(grid, callback) {
   var out = new streams.WritableStream();
-  new HJsonWriter(out).writeGrid(grid);
-  return out.toString();
+  new HJsonWriter(out).writeGrid(grid, function(err) {
+    callback(err, out.toString());
+  });
 };

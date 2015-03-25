@@ -27,9 +27,11 @@ function isNull(obj) {
 
 function verifyGrid(zinc, csv) {
   // read from zinc
-  var grid = new HZincReader(zinc).readGrid();
-  var csvString = HCsvWriter.gridToString(grid);
-  Test.verifyEq(csvString, csv);
+  new HZincReader(zinc).readGrid(function(err, grid) {
+    HCsvWriter.gridToString(grid, function(err, csvString) {
+      Test.verifyEq(csvString, csv);
+    });
+  });
 }
 
 CsvTest.test = function() {
