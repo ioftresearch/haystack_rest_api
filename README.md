@@ -14,8 +14,7 @@ app.js - standard HTTP (no Express)
 
     // Module dependencies .
     var hs = require('nodehaystack'),
-        http = require('http'),
-        url = require('url');
+        http = require('http');
 
     // get the database
     var db = new hs.TestDatabase();
@@ -24,9 +23,10 @@ app.js - standard HTTP (no Express)
       req.setEncoding('utf8');
       req.on('readable', function() {
         // if root, then redirect to {haystack}/about
-        var path = url.parse(req.url).pathname;
+        var path = req.url;
         if (typeof(path) === 'undefined' || path === null || path.length === 0 || path === "/") {
-          res.redirect("/about");
+          res.writeHead(302, {'Location': '/about'});
+          res.end();
           return;
         }
 
@@ -38,8 +38,9 @@ app.js - standard HTTP (no Express)
         // resolve the op
         db.op(opName, false, function(err, op) {
           if (typeof(op) === 'undefined' || op === null) {
-            res.status(404);
-            res.send("404 - Not Found");
+            res.writeHead(404, {'Content-Type': 'text/html'});
+            res.write("404 Not Found");
+            res.end();
             return;
           }
 
@@ -64,21 +65,17 @@ app.js - using Express
     // Module dependencies.
     var hs = require('nodehaystack'),
         express = require('express'),
-        bodyParser = require('body-parser'),
-        url = require('url');
+        bodyParser = require('body-parser');
 
     // get the database
     var db = new hs.TestDatabase();
 
     var app = express();
 
-    // all environments
-    app.set('port', process.env.PORT || 3000);
-    // setup body parser
-    app.use(bodyParser.text()); // TODO: modify so body does not need parsed (should be able to read directly from request stream)
+    app.use(bodyParser.text());
     app.all('*', function(req, res) {
       // if root, then redirect to {haystack}/about
-      var path = url.parse(req.url).pathname;
+      var path = req.url;
       if (typeof(path) === 'undefined' || path === null || path.length === 0 || path === "/") {
         res.redirect("/about");
         return;
@@ -93,7 +90,8 @@ app.js - using Express
       db.op(opName, false, function(err, op) {
         if (typeof(op) === 'undefined' || op === null) {
           res.status(404);
-          res.send("404 - Not Found");
+          res.send("404 Not Found");
+          res.end();
           return;
         }
 
@@ -109,7 +107,7 @@ app.js - using Express
       });
     });
 
-    var server = app.listen(app.get('port'), function() {
+    var server = app.listen(3000, function() {
 
       var host = server.address().address;
       var port = server.address().port;

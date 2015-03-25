@@ -84,6 +84,8 @@ function _op(self, name, checked, callback) {
     callback(null, op);
   else if (checked)
     callback(new Error("Unknown Name: " + name));
+  else
+    callback();
 }
 
 //////////////////////////////////////////////////////////////////////////
