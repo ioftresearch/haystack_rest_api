@@ -151,7 +151,6 @@ HTimeZone.make = function(arg1, checked) {
       var haystack = js.substring(slash + 1);
 
       // store mapping b/w Javascript <-> Haystack
-
       toJS[haystack] = js;
       fromJS[js] = haystack;
     }

@@ -202,7 +202,7 @@ function authenticateBasic(t, resp, callback) {
  * @params {Response} resp
  * @return {JSObject} (i.e. '{}')
  */
-function parseResProps(t, body) {
+HClient.prototype.parseResProps = function(body) {
   // parse response as name:value pairs
   var props = {};
   var lines = body.split("\n");
@@ -214,13 +214,13 @@ function parseResProps(t, body) {
   }
 
   return props;
-}
+};
 
 /**
  * parse URL into host, path and port and return as array
  * @memberof HClient
  */
-function parseUrl(url) {
+HClient.prototype.parseUrl = function(url) {
   // parse url information to host, port and path
   var host = "";
   var path = "";
@@ -237,7 +237,7 @@ function parseUrl(url) {
   }
 
   return [host, path, port];
-}
+};
 /**
  * Authenticate with SkySpark nonce based HMAC SHA-1 mechanism.
  * @private
@@ -264,7 +264,7 @@ function authenticateFolio(t, resp, callback) {
     });
     res.on('end', function() {
       // parse response as name:value pairs
-      var props = parseResProps(t, body);
+      var props = t.parseResProps(body);
 
       // get salt and nonce values
       var salt = props.userSalt;
@@ -282,7 +282,7 @@ function authenticateFolio(t, resp, callback) {
       var digest = md.digest('base64');
 
       // parse url information to host, port and path
-      var info = parseUrl(url);
+      var info = t.parseUrl(url);
       // post back nonce/digest to auth URI
       var opts = {
         host: info[0],
@@ -305,7 +305,7 @@ function authenticateFolio(t, resp, callback) {
           }
 
           // parse successful authentication to get cookie value
-          props = parseResProps(t, body);
+          props = t.parseResProps(body);
           var cookie = props.cookie;
           if (typeof(cookie) === 'undefined') {
             callback(new Error("auth missing 'cookie'"));
@@ -338,27 +338,34 @@ function authenticateFolio(t, resp, callback) {
  * @param {HClient} t (this)
  * @param {function} callback
  */
-function authenticate(t, callback) {
+HClient.prototype.authenticate = function(callback) {
+  var self = this;
+  // provided hook for extending auth methods
+  if (self._authenticate!==undefined) {
+    self._authenticate(callback);
+    return;
+  }
+
   // make request to about to get headers
-  var url = t.uri + "about";
+  var url = self.uri + "about";
 
   http.get(url, function(res) {
-    if (res.headers["x-powered-by"]==='Express') t.isExpress = true;
+    if (res.headers["x-powered-by"]==='Express') self.isExpress = true;
 
     var folioAuthUri = res.headers["folio-auth-api-uri"];
     if (typeof(folioAuthUri) !== 'undefined' && folioAuthUri !== null) {
-      authenticateFolio(t, res, callback);
+      authenticateFolio(self, res, callback);
       return;
     }
 
     var respCode = res.statusCode;
     switch (respCode) {
       case 200:
-        callback(null, t);
+        callback(null, self);
         return;
       case 302:
       case 401:
-        authenticateBasic(t, res, callback);
+        authenticateBasic(self, res, callback);
         return;
       default:
         callback(new Error("Unexpected Response Code: " + respCode));
@@ -367,7 +374,7 @@ function authenticate(t, callback) {
   }).on('error', function(e) {
     callback(e);
   });
-}
+};
 
 //////////////////////////////////////////////////////////////////////////
 // Operations
@@ -392,7 +399,7 @@ HClient.open = function(uri, user, pass, callback) {
  * @return {HClient}
  */
 HClient.prototype.open = function(callback) {
-  authenticate(this, callback);
+  this.authenticate(callback);
 };
 
 /**
@@ -487,20 +494,21 @@ HClient.prototype.onReadAll = function(filter, limit, callback) {
  * @param {HClient} t (this)
  * @param {Response} resp
  */
-function checkSetCookie(t, resp) {
+HClient.prototype.checkSetCookie = function(resp) {
   // if auth is already cookie based, we don't want to overwrite it
-  if (t.authProperty !== null && t.authProperty.key === "Cookie") return;
+  if (this.authProperty !== null && this.authProperty.key === "Cookie") return;
 
   // check for Set-Cookie
-  var header = resp.headers["Set-Cookie"];
+  var header = resp.headers["set-cookie"];
   if (typeof(header) === 'undefined' || header === null) return;
 
   // parse cookie name=value pair
+  header = header.toString();
   var semi = header.indexOf(";");
   if (semi > 0) header = header.substring(0, semi);
 
   // save cookie for future requests
-  t.cookieProperty = new Property("Cookie", header);
+  this.cookieProperty = new Property("Cookie", header);
 }
 
 /**
@@ -522,7 +530,7 @@ function postString(t, op, data, callback) {
   if (t.cookieProperty !== null) headers[t.cookieProperty.key] = t.cookieProperty.value;
 
   // parse url information to host, port and path
-  var info = parseUrl(url);
+  var info = t.parseUrl(url);
   // post back nonce/digest to auth URI
   var opts = {
     host: info[0],
@@ -544,7 +552,7 @@ function postString(t, op, data, callback) {
       }
 
       // check for response cookie
-      checkSetCookie(t, res);
+      t.checkSetCookie(res);
 
       callback(null, body);
     });
@@ -597,7 +605,7 @@ function postGrid(t, op, req, callback) {
 HClient.prototype.call = function(op, req, callback) {
   postGrid(this, op, req, function(err, grid) {
     if (err || grid.isErr()) {
-      callback(err ? err : new Error(res.dict.map.errTrace + "\n"));
+      callback(err ? err : new Error(grid.dict.map.errTrace + "\n"));
       return
     }
     callback(null, grid);
