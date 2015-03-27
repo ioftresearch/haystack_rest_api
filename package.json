@@ -1,6 +1,6 @@
 {
   "name": "nodehaystack",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "Project haystack light weight node.js compliant client and server implementation ",
   "main": "index.js",
   "scripts": {

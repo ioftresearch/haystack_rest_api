@@ -115,10 +115,13 @@ HOp.prototype.onService = function(db, grid) {
  */
 function getToGrid(req, callback) {
   try {
-    var query = url.parse(req.url, true);
+    var query = url.parse(req.url, true).query;
 
     var keys = Object.keys(query);
-    if (keys.legth === 0) return HGrid.EMPTY;
+    if (keys.length === 0) {
+      callback(null, HGrid.EMPTY);
+      return;
+    }
 
     var b = new HDictBuilder();
     for (var i = 0; i < keys.length; i++) {

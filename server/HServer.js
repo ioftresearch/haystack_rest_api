@@ -167,9 +167,13 @@ HServer.prototype.onReadAll = function(filter, limit, callback) {
     if (err) {
       callback(err);
     } else {
-      _iterate(self, it, limit, HFilter.make(filter), [], function(acc) {
-        callback(null, HGridBuilder.dictsToGrid(acc));
-      })
+      try {
+        _iterate(self, it, limit, HFilter.make(filter), [], function(acc) {
+          callback(null, HGridBuilder.dictsToGrid(acc));
+        })
+      } catch (err) {
+        callback(err);
+      }
     }
   });
 };

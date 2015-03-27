@@ -187,17 +187,18 @@ var _iterator = function(self) {
 //////////////////////////////////////////////////////////////////////////
 
 TestDatabase.prototype.onNav = function(navId, callback) {
+  var self = this;
   // test database navId is record id
   if (typeof(navId) !== 'undefined' && navId !== null) {
-    this.readById(HRef.make(navId), function(err, base) {
+    self.readById(HRef.make(navId), function(err, base) {
       if (err) callback(err)
-      else _onNav(base, callback);
+      else _onNav(self, base, callback);
     });
   } else {
-    _onNav(null);
+    _onNav(self, null, callback);
   }
 };
-function _onNav(base, callback) {
+function _onNav(self, base, callback) {
   // map base record to site, equip, or point
   var filter = "site";
   if (typeof(base) !== 'undefined' && base !== null) {
@@ -213,7 +214,7 @@ function _onNav(base, callback) {
   }
 
   // read children of base record
-  this.readAll(filter, function(err, grid) {
+  self.readAll(filter, function(err, grid) {
     if (err) callback(err);
     else {
       // add navId column to results
@@ -226,7 +227,7 @@ function _onNav(base, callback) {
       for (i = 0; i < rows.length; ++i) {
         rows[i] = new HDictBuilder().add(rows[i]).add("navId", rows[i].id().val).toDict();
       }
-      return HGridBuilder.dictsToGrid(rows);
+      callback(null, HGridBuilder.dictsToGrid(rows));
     }
   });
 }

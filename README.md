@@ -14,7 +14,8 @@ app.js - standard HTTP (no Express)
 
     // Module dependencies .
     var hs = require('nodehaystack'),
-        http = require('http');
+        http = require('http'),
+        url = require('url');
 
     // get the database
     var db = new hs.TestDatabase();
@@ -22,8 +23,9 @@ app.js - standard HTTP (no Express)
     var server = http.createServer(function (req, res) {
       req.setEncoding('utf8');
       req.on('readable', function() {
+        var path = url.parse(req.url).pathname;
+
         // if root, then redirect to {haystack}/about
-        var path = req.url;
         if (typeof(path) === 'undefined' || path === null || path.length === 0 || path === "/") {
           res.writeHead(302, {'Location': '/about'});
           res.end();
@@ -65,6 +67,7 @@ app.js - using Express
     // Module dependencies.
     var hs = require('nodehaystack'),
         express = require('express'),
+        url = require('url'),
         bodyParser = require('body-parser');
 
     // get the database
@@ -74,8 +77,9 @@ app.js - using Express
 
     app.use(bodyParser.text());
     app.all('*', function(req, res) {
+      var path = url.parse(req.url).pathname;
+
       // if root, then redirect to {haystack}/about
-      var path = req.url;
       if (typeof(path) === 'undefined' || path === null || path.length === 0 || path === "/") {
         res.redirect("/about");
         return;
