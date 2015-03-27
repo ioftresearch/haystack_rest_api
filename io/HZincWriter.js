@@ -11,7 +11,7 @@
 var HGridWriter = require('./HGridWriter'),
     HMarker = require('../HMarker'),
     HGrid = require('../HGrid'),
-    streams = require('memory-streams');
+    Writer = require('./Streams').Writer;
 
 //////////////////////////////////////////////////////////////////////////
 //Fields
@@ -115,7 +115,7 @@ HZincWriter.prototype.writeGrid = function(grid, callback) {
  * @return {string}
  */
 HZincWriter.gridToString = function(grid, callback) {
-  var out = new streams.WritableStream();
+  var out = new Writer();
   new HZincWriter(out).writeGrid(grid, function(err) {
     callback(err, out.toString());
   });

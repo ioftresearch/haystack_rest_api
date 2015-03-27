@@ -9,7 +9,7 @@
 //
 
 var HGridWriter = require('./HGridWriter'),
-    streams = require('memory-streams'),
+    Writer = require('./Streams').Writer,
     HMarker = require('../HMarker'),
     HRef = require('../HRef');
 
@@ -166,7 +166,7 @@ HCsvWriter.prototype.writeGrid = function(grid, callback) {
  * @return {string}
  */
 HCsvWriter.gridToString = function(grid, callback) {
-  var out = new streams.WritableStream();
+  var out = new Writer();
   new HCsvWriter(out).writeGrid(grid, function(err) {
     callback(err, out.toString());
   });

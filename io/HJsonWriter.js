@@ -9,7 +9,7 @@
 //
 
 var HGridWriter = require('./HGridWriter'),
-    streams = require('memory-streams'),
+    Writer = require('./Streams').Writer,
     HBool = require('../HBool'),
     HMarker = require('../HMarker'),
     HNum = require('../HNum'),
@@ -129,7 +129,7 @@ HJsonWriter.prototype.writeGrid = function(grid, callback) {
  * @return {string}
  */
 HJsonWriter.gridToString = function(grid, callback) {
-  var out = new streams.WritableStream();
+  var out = new Writer();
   new HJsonWriter(out).writeGrid(grid, function(err) {
     callback(err, out.toString());
   });

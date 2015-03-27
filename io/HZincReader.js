@@ -9,7 +9,7 @@
 //
 
 var HGridReader = require('./HGridReader'),
-    StringStream = require('string-stream'),
+    Reader = require('./Streams').Reader,
     HVal = require('../HVal');
 
 //////////////////////////////////////////////////////////////////////////
@@ -70,11 +70,11 @@ function notdone(c, eq) {
  *
  * @constructor
  * @extends {HGridReader}
- * @param {Stream.Readable} i - if string is passed, it is converted to a {StringStream}
+ * @param {Stream.Readable} i - if string is passed, it is converted to a {Reader}
  */
 function HZincReader(i) {
   if (typeof(i) === 'string' || i instanceof String)
-    i = new StringStream(i);
+    i = new Reader(i);
 
   isFilter = false;
   input = i;
