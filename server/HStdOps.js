@@ -338,7 +338,10 @@ function HisWriteOp() {
     }
     this.valToId(db, req.meta().get("id"), function(err, id) {
       var items = HHisItem.gridToItems(req);
-      db.hisWrite(id, items, callback);
+      db.hisWrite(id, items, function(err) {
+        if (err) callback(err);
+        else callback(null, HGrid.EMPTY);
+      });
     });
   };
 }

@@ -11,7 +11,7 @@
 /**
  * HFilter models a parsed tag query string.
  * @see {@link http://project-haystack.org/doc/Filters|Project Haystack}
- * 
+ *
  * @constructor
  */
 function HFilter() {
@@ -38,7 +38,7 @@ HFilter.prototype.include = function(dict, pather) {
  * @abstract
  * @return {string}
  */
-HFilter.prototype.include = function(dict, pather) {
+HFilter.prototype.toStr = function(dict, pather) {
   throw new Error('must be implemented by subclass!');
 };
 
@@ -349,25 +349,31 @@ HFilter.PathFilter.prototype.doInclude = function(val) {
  * @param {Pather} pather
  * @returns {boolean}
  */
-HFilter.PathFilter.prototype.include = function(dict, pather) {
-  var val = dict.get(this.path.get(0), false);
-  if (this.path.size() !== 1) {
-    var nt = dict;
-    for (var i = 1; i < this.path.size(); ++i) {
-      if (!(val instanceof HRef)) {
-        val = null;
-        break;
-      }
-      nt = pather.find(val.val);
-      if (typeof(nt) === 'undefined' || nt === null) {
-        val = null;
-        break;
-      }
-      val = nt.get(this.path.get(i), false);
-    }
-  }
-  return this.doInclude(val);
+HFilter.PathFilter.prototype.include = function(dict, pather, callback) {
+  var self = this;
+  var val = dict.get(self.path.get(0), false);
+  _include(val, self.path, dict, pather, 1, function(err, inc) {
+    callback(self.doInclude(inc));
+  });
 };
+function _include(val, path, nt, pather, count, callback) {
+  if (count<path.size()) {
+    if (!(val instanceof HRef)) {
+      callback();
+      return;
+    }
+    pather.find(val.val, function(err, nt) {
+      if (typeof(nt) === 'undefined' || nt === null) {
+        callback()
+        return;
+      }
+      val = nt.get(path.get(count), false);
+      _include(val, path, nt, pather, ++count, callback);
+    });
+  } else {
+    callback(null, val);
+  }
+}
 
 //////////////////////////////////////////////////////////////////////////
 // Has
@@ -485,7 +491,7 @@ HFilter.Eq.prototype.cmpStr = function() {
  * @returns {boolean}
  */
 HFilter.Eq.prototype.doInclude = function(hval) {
-  return hval !== null && hval.equals(this.val);
+  return typeof(hval) !== 'undefined' && hval !== null && hval.equals(this.val);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -514,7 +520,7 @@ HFilter.Ne.prototype.cmpStr = function() {
  * @returns {boolean}
  */
 HFilter.Ne.prototype.doInclude = function(hval) {
-  return hval !== null && !hval.equals(this.val);
+  return typeof(hval) !== 'undefined' && hval !== null && !hval.equals(this.val);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -699,8 +705,17 @@ HFilter.And.prototype.keyword = function() {
  * @param {Pather} pather
  * @returns {boolean}
  */
-HFilter.And.prototype.include = function(dict, pather) {
-  return this.a.include(dict, pather) && this.b.include(dict, pather);
+HFilter.And.prototype.include = function(dict, pather, callback) {
+  var self = this;
+  self.a.include(dict, pather, function(inc) {
+    if (inc) {
+      self.b.include(dict, pather, function(inc) {
+        callback(inc);
+      })
+    } else {
+      callback(false);
+    }
+  })
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -730,5 +745,14 @@ HFilter.Or.prototype.keyword = function() {
  * @returns {boolean}
  */
 HFilter.Or.prototype.include = function(dict, pather) {
-  return this.a.include(dict, pather) || this.b.include(dict, pather);
+  var self = this;
+  self.a.include(dict, pather, function(inc) {
+    if (!inc) {
+      self.b.include(dict, pather, function(inc) {
+        callback(inc);
+      })
+    } else {
+      callback(true);
+    }
+  })
 };

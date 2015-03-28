@@ -104,7 +104,7 @@ HZincWriter.prototype.writeGrid = function(grid, callback) {
 
     callback();
   } catch (err) {
-    console.log("writeGridError");
+    callback(err);
   }
 };
 

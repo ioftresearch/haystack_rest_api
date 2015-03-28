@@ -167,29 +167,35 @@ HServer.prototype.onReadAll = function(filter, limit, callback) {
     if (err) {
       callback(err);
     } else {
-      try {
-        _iterate(self, it, limit, HFilter.make(filter), [], function(acc) {
-          callback(null, HGridBuilder.dictsToGrid(acc));
-        })
-      } catch (err) {
-        callback(err);
-      }
+        if (!it.hasNext()) {
+          callback(null, HGrid.EMPTY);
+        } else {
+          _iterate(self, it, limit, HFilter.make(filter), [], function(err, acc) {
+            if (err)
+              callback(HGridBuilder.errToGrid(err));
+            else
+              callback(null, HGridBuilder.dictsToGrid(acc));
+          })
+        }
     }
   });
 };
 function _iterate(self, it, limit, f, acc, callback) {
-  if (it.hasNext()) {
-    var rec = it.next();
-    if (f.include(rec, self.filterPather))
-      acc[acc.length] = rec;
+  var rec = it.next();
+  f.include(rec, self.filterPather(), function(inc) {
+    try {
+      if (inc)
+        acc[acc.length] = rec;
 
-    if (acc.length < limit) {
-      _iterate(self, it, limit, f, acc, callback);
-      return;
+      if (acc.length < limit && it.hasNext()) {
+        _iterate(self, it, limit, f, acc, callback);
+      } else {
+        callback(null, acc);
+      }
+    } catch (err) {
+      callback(err);
     }
-  }
-
-  callback(acc);
+  });
 }
 HServer.prototype.filterPather = function() {
   var self = this;
