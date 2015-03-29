@@ -199,6 +199,10 @@ HGridBuilder.prototype.addRow = function(cells) {
  * @return {HGrid}
  */
 HGridBuilder.prototype.toGrid = function() {
+  if (this.cols.length===0) {
+    return HGrid.EMPTY;
+  }
+
   // meta
   var dict = this.dict.toDict();
   // cols

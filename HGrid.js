@@ -146,5 +146,7 @@ HGrid.prototype.iterator = function() {
 /** Debug dump - this is Zinc right now. */
 HGrid.prototype.dump = function(out) {
   if (typeof(out) === 'undefined') out = console;
-  console.log(HZincWriter.gridToString(this));
+  HZincWriter.gridToString(this, function(err, str) {
+    out.log(str);
+  });
 };
