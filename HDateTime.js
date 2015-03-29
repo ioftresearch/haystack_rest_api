@@ -96,8 +96,8 @@ HDateTime.prototype.toZinc = function() {
     s += zh + ":";
     if (zm < 10) s += "0";
     s += zm;
+    s += " " + this.tz;
   }
-  s += " " + this.tz;
 
   return s;
 };
@@ -212,5 +212,5 @@ HDateTime.now = function(tz) {
   if (typeof(tz) === 'undefined')
     tz = HTimeZone.DEFAULT;
   var d = new Date();
-  return HDateTime.make(HDate.make(d), HTime.make(d), tz);
+  return HDateTime.make(d.getTime(), tz);
 };

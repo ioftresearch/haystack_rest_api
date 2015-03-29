@@ -42,18 +42,7 @@ HGridBuilder.prototype.meta = function() {
  * @return {HGrid}
  */
 HGridBuilder.dictToGrid = function(dict) {
-  var b = new HGridBuilder();
-  var it = dict.iterator();
-  var cells = [];
-  while (it.hasNext()) {
-    var entry = it.next();
-    var name = entry.getKey();
-    var val = entry.getValue();
-    b.addCol(name);
-    cells[cells.length] = val;
-  }
-  b.rows[b.rows.length] = cells;
-  return b.toGrid();
+  return HGridBuilder.dictsToGrid([dict]);
 };
 
 /**
@@ -71,6 +60,7 @@ HGridBuilder.dictsToGrid = function(dicts, dict) {
 
   // collect column names
   var colsByName = {};
+  var hasId, hasMod;
   for (var i = 0; i < dicts.length; ++i) {
     dict = dicts[i];
     if (typeof(dict) === 'undefined' || dict === null) continue;
@@ -81,10 +71,36 @@ HGridBuilder.dictsToGrid = function(dicts, dict) {
       var cn = colsByName[name];
       if (typeof(cn) === 'undefined' || cn === null) {
         colsByName[name] = name;
-        b.addCol(name);
+        if (name==='id') hasId = true;
+        else if (name==='mod') hasMod = true;
       }
     }
   }
+
+  // sort column names
+  var names = Object.keys(colsByName);
+  names.sort();
+  // move id and mod columns
+  if (hasId || hasMod) {
+    var movedId, movedMod;
+    for (var i=0; i<names.length; i++) {
+      if (names[i]==='id' && i>0) {
+        // move id to the front
+        for (var j=i; j>0; ) names[j] = names[--j];
+        names[0] = 'id';
+        if (!hasMod || (hasMod && movedMod)) break;
+      } else if (names[i]==='mod' && i<(names.length-1)) {
+        // move mod to the end
+        for (var j=i; j<names.length; ) names[j] = names[++j];
+        names[names.length-1] = 'mod';
+        if (!hasId || (hasId && movedId)) break;
+      }
+    }
+  }
+
+  // add sorted columns to grid
+  for (var i=0; i<names.length; i++)
+    b.addCol(names[i]);
 
   // if all dicts were null, handle special case
   // by creating a dummy column
