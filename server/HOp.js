@@ -189,6 +189,11 @@ function toFormat(req) {
       format = HGridFormat.find(mimes[i], false);
       if (format !== null && format.writer !== null) break;
     }
+
+    // spec says we should return a 406, but the JAVA implementation does not???
+    // res.statusCode = 406;
+    // res.statusMessage = "No format writer available for MIME type: " + mime;
+    // return null;
   }
   if (format === null) format = HGridFormat.find("text/plain", true);
   return format;

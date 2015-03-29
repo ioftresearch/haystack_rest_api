@@ -178,16 +178,20 @@ function verifyInclude(map, query, expected) {
     return map[id];
   };
 
-  var q = HFilter.make(query);
-
-  var actual = "";
-  for (var c = HVal.cc('a'); c <= HVal.cc('c'); ++c) {
+  _build(HFilter.make(query), "", HVal.cc('a'), HVal.cc('c'), db, function(act) {
+    Test.verifyEq(expected, act);
+  });
+}
+function _build(q, actual, c, stop, db, callback) {
+  if (c<=stop) {
     var id = String.fromCharCode(c);
-    if (q.include(db.find(id), db)) {
-      actual += actual.length > 0 ? "," + id : id;
-    }
+    q.include(db.find(id), db, function(inc) {
+      if (inc) actual += actual.length >0 ? "," + id : id;
+      _build(q, actual, ++c, stop, db, callback);
+    });
+  } else {
+    callback(actual);
   }
-  Test.verifyEq(expected, actual);
 }
 
 FilterTest.testInclude = function() {

@@ -744,7 +744,7 @@ HFilter.Or.prototype.keyword = function() {
  * @param {Pather} pather
  * @returns {boolean}
  */
-HFilter.Or.prototype.include = function(dict, pather) {
+HFilter.Or.prototype.include = function(dict, pather, callback) {
   var self = this;
   self.a.include(dict, pather, function(inc) {
     if (!inc) {

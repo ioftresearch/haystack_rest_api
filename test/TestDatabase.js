@@ -263,8 +263,8 @@ var WriteArray = function() {
 
 TestDatabase.prototype.onPointWriteArray = function(rec, callback) {
   var array = writeArrays[rec.id()];
-  if (array === null) {
-    array = new WriteArray();
+  if (typeof(array)==='undefined' || array===null) {
+    writeArrays[rec.id()] = array = new WriteArray();
   }
 
   var b = new HGridBuilder();
@@ -287,12 +287,13 @@ TestDatabase.prototype.onPointWriteArray = function(rec, callback) {
 
 TestDatabase.prototype.onPointWrite = function(rec, level, val, who, dur, opts, callback) {
   console.log("onPointWrite: " + rec.dis() + "  " + val + " @ " + level + " [" + who + "]");
-  var array = writeArrays.get[rec.id()];
+  var array = writeArrays[rec.id()];
   if (typeof(array) === 'undefined' || array === null) {
     writeArrays[rec.id()] = array = new WriteArray();
   }
   array.val[level - 1] = val;
   array.who[level - 1] = who;
+  callback();
 };
 
 //////////////////////////////////////////////////////////////////////////
