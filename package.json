@@ -1,11 +1,15 @@
 {
   "name": "nodehaystack",
-  "version": "0.10.3",
+  "version": "0.10.4",
   "description": "Project haystack light weight node.js compliant client and server implementation ",
+  "author": "Shawn Jacobson <shawn.jacobson@lynxspring.com> (http://www.lynxsprng.com)",
+  "license": "AFL-3.0",
   "main": "index.js",
   "scripts": {
-    "start": "node demo.js",
-    "test": "node test/Test.js"
+    "test": "node test/RunTests.js"
+  },
+  "bugs": {
+    "url": "https://bitbucket.org/lynxspring/nodehaystack/issues"
   },
   "repository": {
     "type": "git",
@@ -15,7 +19,6 @@
     "project-haystack",
     "haystack"
   ],
-  "author": "Shawn Jacobson <shawn.jacobson@lynxspring.com> (http://www.lynxsprng.com)",
   "dependencies": {
     "moment-timezone": "^0.3.0"
   },
