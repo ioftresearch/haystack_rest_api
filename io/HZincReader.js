@@ -10,6 +10,7 @@
 
 var HGridReader = require('./HGridReader'),
     Reader = require('./Streams').Reader,
+    Stream = require('stream'),
     HVal = require('../HVal');
 
 //////////////////////////////////////////////////////////////////////////
@@ -73,7 +74,7 @@ function notdone(c, eq) {
  * @param {Stream.Readable} i - if string is passed, it is converted to a {Reader}
  */
 function HZincReader(i) {
-  if (typeof(i) === 'string' || i instanceof String)
+  if (!(i instanceof Stream.Readable))
     i = new Reader(i);
 
   isFilter = false;

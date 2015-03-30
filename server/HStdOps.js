@@ -283,7 +283,11 @@ function PointWriteOp() {
         var who = row.getStr("who"); // be nice to have user fallback
         var val = row.get("val", false);
         var dur = row.get("duration", false);
-        db.pointWrite(id, level, val, who, dur, row, function() {
+        db.pointWrite(id, level, val, who, dur, row, function(err) {
+          if (err) {
+            callback(err);
+            return;
+          }
           db.pointWriteArray(id, callback);
         });
       } else {
