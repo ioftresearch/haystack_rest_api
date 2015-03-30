@@ -101,7 +101,7 @@ HDictBuilder.prototype.toDict = function() {
  * @returns {HDictBuilder}
  */
 HDictBuilder.prototype.add = function(name, val, unit) {
-  if (typeof(val) === 'undefined' || val === null) {
+  if (typeof(val) === 'undefined') {
     if (name instanceof HDict) {
       for (var it = name.iterator(); it.hasNext();) {
         var entry = it.next();
