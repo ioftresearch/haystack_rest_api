@@ -117,6 +117,7 @@ HJsonWriter.prototype.writeGrid = function(grid, callback) {
 
     // grid end
     this.out.write("}\n");
+    callback();
   } catch (err) {
     callback(err);
   }
