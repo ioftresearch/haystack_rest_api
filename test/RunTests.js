@@ -62,7 +62,7 @@ function runTests(tests) {
     }
   }
 
-  var testClient = false;
+  var testClient = true;
 
   // run async tests
   if (testClient) {

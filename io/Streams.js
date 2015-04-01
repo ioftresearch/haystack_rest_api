@@ -70,7 +70,7 @@ WritableStream.prototype.toString = function() {
 };
 WritableStream.prototype.toBuffer = function() {
   var buffers = [];
-  this._writableState.buffer.forEach(function(data) {
+  this._writableState.getBuffer().forEach(function(data) {
     buffers.push(data.chunk);
   });
 

@@ -526,8 +526,8 @@ function postString(t, op, data, callback) {
   var headers = {};
   headers.Connection = "Close";
   headers["Content-Type"] = "text/plain; charset=utf-8";
-  if (t.authProperty !== null) headers[t.authProperty.key] = t.authProperty.value;
-  if (t.cookieProperty !== null) headers[t.cookieProperty.key] = t.cookieProperty.value;
+  if (t.authProperty !== null && typeof(t.authProperty)!=='undefined') headers[t.authProperty.key] = t.authProperty.value;
+  if (t.cookieProperty !== null && typeof(t.cookieProperty)!=='undefined') headers[t.cookieProperty.key] = t.cookieProperty.value;
 
   // parse url information to host, port and path
   var info = t.parseUrl(url);
@@ -562,7 +562,7 @@ function postString(t, op, data, callback) {
   });
   // write the data
   req.write(data);
-  if (t.isExpress) req.end();
+  req.end();
 }
 
 /**
@@ -652,6 +652,7 @@ HClient.prototype.evalAll = function(req, checked, callback) {
     checked = true;
   }
 
+  var self = this;
   var i;
   if (!(req instanceof HGrid)) {
     var b = new HGridBuilder();
@@ -665,7 +666,7 @@ HClient.prototype.evalAll = function(req, checked, callback) {
       callback(err);
     } else {
 
-      postString(this, "evalAll", reqStr, function(err, str) {
+      postString(self, "evalAll", reqStr, function(err, str) {
         new HZincReader(str).readGrids(function (err, res) {
           if (checked) {
             for (i = 0; i < res.length; ++i) {

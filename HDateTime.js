@@ -96,8 +96,8 @@ HDateTime.prototype.toZinc = function() {
     s += zh + ":";
     if (zm < 10) s += "0";
     s += zm;
-    s += " " + this.tz;
   }
+  s += " " + this.tz;
 
   return s;
 };
