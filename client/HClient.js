@@ -49,7 +49,6 @@ function HClient(uri, user, pass) {
   this.authProperty = null;
   this.cookieProperty = null;
   this.uwatches = {};
-  this.isExpress = false;
 
   /** Base URI for connection such as "http://host/api/demo/".
    This string always ends with slash. */
@@ -350,8 +349,6 @@ HClient.prototype.authenticate = function(callback) {
   var url = self.uri + "about";
 
   http.get(url, function(res) {
-    if (res.headers["x-powered-by"]==='Express') self.isExpress = true;
-
     var folioAuthUri = res.headers["folio-auth-api-uri"];
     if (typeof(folioAuthUri) !== 'undefined' && folioAuthUri !== null) {
       authenticateFolio(self, res, callback);
@@ -526,6 +523,7 @@ function postString(t, op, data, callback) {
   var headers = {};
   headers.Connection = "Close";
   headers["Content-Type"] = "text/plain; charset=utf-8";
+  headers["Content-Length"] = Buffer.byteLength(data);
   if (t.authProperty !== null && typeof(t.authProperty)!=='undefined') headers[t.authProperty.key] = t.authProperty.value;
   if (t.cookieProperty !== null && typeof(t.cookieProperty)!=='undefined') headers[t.cookieProperty.key] = t.cookieProperty.value;
 

@@ -47,6 +47,14 @@ HMarker.prototype.toZinc = function() {
 };
 
 /**
+ * Encode as "m:"
+ * @returns string
+ */
+HMarker.prototype.toJSON = function() {
+  return "m:";
+};
+
+/**
  * Singleton value
  * @static
  */

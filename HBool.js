@@ -46,6 +46,14 @@ HBool.prototype.toZinc = function() {
 };
 
 /**
+ * Return val as string
+ * @returns string
+ */
+HBool.prototype.toJSON = function() {
+  return this.val.toString();
+};
+
+/**
  * Equals is based on reference
  * @param {HBool} that - object to be compared to
  * @return {boolean}

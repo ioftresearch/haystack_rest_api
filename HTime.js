@@ -90,6 +90,14 @@ HTime.prototype.toZinc = function() {
 };
 
 /**
+ * Encode as "h:hh:mm:ss.FFF"
+ * @return {string}
+ */
+HTime.prototype.toJSON = function() {
+  return "h:" + this.toZinc();
+};
+
+/**
  * Singleton for midnight 00:00
  * @static
  * @return {HTime}

@@ -72,22 +72,34 @@ HVal.prototype.compareTo = function(that) {
  * @return {string}
  */
 HNum.prototype.toZinc = function() {
+  return parse(this, false);
+};
+
+/**
+ * Encode as "n:num unit"
+ * @returns string
+ */
+HNum.prototype.toJSON = function() {
+  return "n:" + parse(this, true);
+};
+
+function parse(self, json) {
   var s = "";
-  if (this.val === Number.POSITIVE_INFINITY) s += "INF";
-  else if (this.val === Number.NEGATIVE_INFINITY) s += "-INF";
-  else if (isNaN(this.val)) s += "NaN";
+  if (self.val === Number.POSITIVE_INFINITY) s += "INF";
+  else if (self.val === Number.NEGATIVE_INFINITY) s += "-INF";
+  else if (isNaN(self.val)) s += "NaN";
   else {
     // don't let fractions
-    var abs = this.val;
+    var abs = self.val;
     if (abs < 0) abs = -abs;
-    if (abs > 1.0) s += parseFloat(this.val.toFixed(4).toString());
-    else s += this.val;
+    if (abs > 1.0) s += parseFloat(self.val.toFixed(4).toString());
+    else s += self.val;
 
-    if (typeof(this.unit) !== 'undefined' && this.unit !== null) s += this.unit;
+    if (typeof(self.unit) !== 'undefined' && self.unit !== null) s += (json ? " " : "") + self.unit;
   }
 
   return s;
-};
+}
 
 /**
  * Equals is based on val, unit (NaN == NaN)

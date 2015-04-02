@@ -33,6 +33,14 @@ HStr.prototype.toZinc = function() {
 };
 
 /**
+ * Encode using "n:" with back slash escapes
+ * @return {string}
+ */
+HStr.prototype.toJSON = function() {
+  return "s:" + HStr.parseCode(this.val);
+};
+
+/**
  * Equals is based on reference
  * @return {boolean}
  */
@@ -73,7 +81,13 @@ HStr.make = function(val) {
  */
 HStr.toCode = function(val) {
   var s = '"';
+  s += HStr.parseCode(val);
+  s += '"';
 
+  return s;
+};
+HStr.parseCode = function(val) {
+  var s = "";
   for (var i = 0; i < val.length; ++i) {
     var c = HVal.cc(val.charAt(i));
     if (c < HVal.cc(' ') || c === HVal.cc('"') || c === HVal.cc('\\')) {
@@ -104,11 +118,9 @@ HStr.toCode = function(val) {
       s += String.fromCharCode(c);
     }
   }
-  s += '"';
 
   return s;
-};
-
+}
 /**
  * Custom split routine to maintain compatibility with Java Haystack
  * @param {string} str

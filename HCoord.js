@@ -81,12 +81,25 @@ function uToStr(ud) {
  */
 HCoord.prototype.toZinc = function() {
   var s = "C(";
-  s += uToStr(this.ulat);
-  s += ",";
-  s += uToStr(this.ulng);
+  s += getLatLng(this);
   s += ")";
   return s;
 };
+
+/**
+ * Encode as "c:lat,lng"
+ * @returns string
+ */
+HCoord.prototype.toJSON = function() {
+  return "c:" + getLatLng(this);
+};
+
+function getLatLng(self) {
+  s = uToStr(self.ulat);
+  s += ",";
+  s += uToStr(self.ulng);
+  return s;
+}
 
 /**
  * Equals is based on lat, lng

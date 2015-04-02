@@ -63,7 +63,7 @@ UtilTest.testGridFormat = function() {
   var format = testFormat("text/plain", "HZincReader", "HZincWriter");
   format = testFormat("text/zinc", "HZincReader", "HZincWriter");
   format = testFormat("text/csv", null, "HCsvWriter");
-  format = testFormat("application/json", null, "HJsonWriter");
+  format = testFormat("application/json", "HJsonReader", "HJsonWriter");
 
   var h = HGridFormat.find("invalid", false);
   try {

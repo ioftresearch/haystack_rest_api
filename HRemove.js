@@ -47,6 +47,14 @@ HRemove.prototype.toZinc = function() {
 };
 
 /**
+ * Encode as "x:"
+ * @return {string}
+ */
+HRemove.prototype.toJSON = function() {
+  return "x:";
+};
+
+/**
  * Singleton value
  * @static
  */

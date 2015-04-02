@@ -103,6 +103,14 @@ HDateTime.prototype.toZinc = function() {
 };
 
 /**
+ * Encode as "t:YYYY-MM-DD'T'hh:mm:ss.FFFz zzzz"
+ * @returns string
+ */
+HDateTime.prototype.toJSON = function() {
+  return "t:" + this.toZinc();
+};
+
+/**
  * Equals is based on date, time, tzOffset, and tz
  * @param {HDateTime} that - object to be compared to
  * @return {boolean}

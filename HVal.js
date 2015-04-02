@@ -48,6 +48,15 @@ HVal.prototype.toZinc = function() {
 };
 
 /**
+ * Encode value to JSON format
+ * @abstract
+ * @return {string}
+ */
+HVal.prototype.toJSON = function() {
+  throw new Error('must be implemented by subclass!');
+};
+
+/**
  * Equality is value based
  * @abstract
  * @return {boolean}

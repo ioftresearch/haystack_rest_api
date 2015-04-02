@@ -46,6 +46,14 @@ HDate.prototype.toZinc = function() {
 };
 
 /**
+ * Encode as "d:YYYY-MM-DD"
+ * @returns string
+ */
+HDate.prototype.toJSON = function() {
+  return "d:" + this.toZinc();
+};
+
+/**
  * Equals is based on year, month, day
  * @param {HDate} that - object to be compared to
  * @return {boolean}

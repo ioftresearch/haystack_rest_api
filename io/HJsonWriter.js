@@ -39,16 +39,8 @@ module.exports = HJsonWriter;
  */
 function writeVal(self, val) {
   if (typeof(val) === 'undefined' || val === null) self.out.write("null");
-  else if (val instanceof HMarker) self.out.write("\"\u2713\"");
-  else if (val instanceof HBool) self.out.write("" + val);
-  else if (val instanceof HNum) self.out.write("" + val.val);
-  else if (val instanceof HRef) {
-    var s = "@" + val.val;
-    if (typeof(val.disaply) !== 'undefined' && val.display !== null)
-      s += " " + val.display;
-    self.out.write(HStr.toCode(s));
-  }
-  else self.out.write(HStr.toCode(val.toString()));
+  else if (val instanceof HBool) self.out.write("" + val.val);
+  else self.out.write('"' + val.toJSON() + '"');
 };
 /**
  * @memberof HJsonWriter
@@ -85,9 +77,10 @@ function writeDict(self, dict) {
  * @param {HGrid} grid
  */
 HJsonWriter.prototype.writeGrid = function(grid, callback) {
+  var cb = true;
   try {
     // grid begin
-    this.out.write("{\n");
+    this.out.write("{");
 
     // meta
     this.out.write("\"meta\": {\"ver\":\"2.0\"");
@@ -96,16 +89,16 @@ HJsonWriter.prototype.writeGrid = function(grid, callback) {
 
     var i;
     // columns
-    this.out.write("\"cols\":[\n");
+    this.out.write("\"cols\":[");
     for (i = 0; i < grid.numCols(); ++i) {
-      if (i > 0) this.out.write(",\n");
+      if (i > 0) this.out.write(", ");
       var col = grid.col(i);
       this.out.write("{\"name\":");
       this.out.write(HStr.toCode(col.name()));
       writeDictTags(this, col.meta(), false);
       this.out.write("}");
     }
-    this.out.write("\n],\n");
+    this.out.write("],\n");
 
     // rows
     this.out.write("\"rows\":[\n");
@@ -113,13 +106,14 @@ HJsonWriter.prototype.writeGrid = function(grid, callback) {
       if (i > 0) this.out.write(",\n");
       writeDict(this, grid.row(i));
     }
-    this.out.write("\n]\n");
+    this.out.write("\n]");
 
     // grid end
     this.out.write("}\n");
+    cb = false;;
     callback();
   } catch (err) {
-    callback(err);
+    if (cb) callback(err);
   }
 };
 

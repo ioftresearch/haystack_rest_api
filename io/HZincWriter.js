@@ -82,6 +82,7 @@ function writeRow(grid, row) {
  * @param {HGrid} grid
  */
 HZincWriter.prototype.writeGrid = function(grid, callback) {
+  var cb = true;
   try {
     // meta
     out.write("ver:\"2.0\"");
@@ -102,9 +103,10 @@ HZincWriter.prototype.writeGrid = function(grid, callback) {
       out.write('\n');
     }
 
+    cb = false;
     callback();
   } catch (err) {
-    callback(err);
+    if (cb) callback(err);
   }
 };
 

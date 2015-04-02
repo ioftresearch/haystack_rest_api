@@ -74,8 +74,9 @@ function notdone(c, eq) {
  * @param {Stream.Readable} i - if string is passed, it is converted to a {Reader}
  */
 function HZincReader(i) {
-  if (!(i instanceof Stream.Readable))
+  if (!(i instanceof Stream.Readable)) {
     i = new Reader(i);
+  }
 
   isFilter = false;
   input = i;
@@ -675,6 +676,7 @@ function readMeta(b) {
  * @return {HGrid}
  */
 HZincReader.prototype.readGrid = function(callback) {
+  var cb = true;
   try {
     var b = new HGridBuilder();
 
@@ -715,9 +717,10 @@ HZincReader.prototype.readGrid = function(callback) {
     }
     if (cur === '\n') consumeNewline();
 
+    cb = false;
     callback(null, b.toGrid());
   } catch (err) {
-    callback(err);
+    if (cb) callback(err);
   }
 };
 

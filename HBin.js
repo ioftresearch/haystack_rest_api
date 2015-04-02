@@ -43,17 +43,30 @@ HBin.make = function(mime) {
  */
 HBin.prototype.toZinc = function() {
   var s = "Bin(";
-  for (var i = 0; i < this.mime.length; ++i) {
-    var c = this.mime.charAt(i);
+  s += parse(this.mime);
+  s += ")";
+  return s;
+};
+
+/**
+ * Encode as "b:<mime>"
+ * @returns string
+ */
+HBin.prototype.toJSON = function() {
+  return "b:" + parse(this.mime);
+};
+
+function parse(mime) {
+  var s = "";
+  for (var i = 0; i < mime.length; ++i) {
+    var c = mime.charAt(i);
     if (HVal.cc(c) > 127 || c === ')')
       throw new Error("Invalid mime, char='" + c + "'");
 
     s += c;
   }
-  s += ")";
   return s;
-};
-
+}
 /**
  * Equals is based on mime field
  * @param {HBin} that - object to be compared to

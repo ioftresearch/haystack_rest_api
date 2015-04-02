@@ -13,7 +13,7 @@ var HVal = require('./HVal');
 /**
  * HRef wraps a string reference identifier and optional display name.
  * @see {@link http://project-haystack.org/doc/TagModel#tagKinds|Project Haystack}
- * 
+ *
  * @constructor
  * @extends {HVal}
  * @param {string} val
@@ -38,6 +38,18 @@ HRef.prototype.toZinc = function() {
   var s = "@" + this.val;
   if (typeof(this.display) !== 'undefined' && this.display !== null)
     s += " " + HStr.toCode(this.display);
+
+  return s;
+};
+
+/**
+ * Encode as "r:id <dis>"
+ * @returns string
+ */
+HRef.prototype.toJSON = function() {
+  var s = "r:" + this.val;
+  if (typeof(this.display) !== 'undefined' && this.display !== null)
+    s += " " + HStr.parseCode(this.display);
 
   return s;
 };

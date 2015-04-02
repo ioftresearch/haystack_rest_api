@@ -138,6 +138,7 @@ function writeRow(self, grid, row) {
  * @param {HGrid} grid
  */
 HCsvWriter.prototype.writeGrid = function(grid, callback) {
+  var cb = true;
   try {
     var i;
     // cols
@@ -153,9 +154,10 @@ HCsvWriter.prototype.writeGrid = function(grid, callback) {
       this.out.write('\n');
     }
 
+    cb = false;
     callback();
   } catch(err) {
-    callback(err);
+    if (cb) callback(err);
   }
 };
 

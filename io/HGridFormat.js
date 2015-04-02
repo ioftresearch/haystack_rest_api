@@ -39,6 +39,7 @@ function HGridFormat(mime, reader, writer) {
 module.exports = HGridFormat;
 
 var HCsvWriter = require('./HCsvWriter'),
+    HJsonReader = require('./HJsonReader'),
     HJsonWriter = require('./HJsonWriter'),
     HZincReader = require('./HZincReader'),
     HZincWriter = require('./HZincWriter');
@@ -129,7 +130,7 @@ try {
   HGridFormat.register(new HGridFormat("text/plain", HZincReader, HZincWriter));
   HGridFormat.register(new HGridFormat("text/zinc", HZincReader, HZincWriter));
   HGridFormat.register(new HGridFormat("text/csv", null, HCsvWriter));
-  HGridFormat.register(new HGridFormat("application/json", null, HJsonWriter));
+  HGridFormat.register(new HGridFormat("application/json", HJsonReader, HJsonWriter));
 }
 catch (e) {
   console.log(e.stack);

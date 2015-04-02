@@ -47,16 +47,30 @@ HUri.prototype.toString = function() {
  */
 HUri.prototype.toZinc = function() {
   var s = "`";
-  for (var i = 0; i < this.val.length; ++i) {
-    var c = this.val.charAt(i);
-    if (HVal.cc(c) < HVal.cc(" "))
-      throw new Error("Invalid URI char '" + this.val + "', char='" + c + "'");
-    if (c === "`") s += "\\";
-    s += c;
-  }
+  s += parse(this);
   s += "`";
   return s;
 };
+
+/**
+ * Encode as "h:hh:mm:ss.FFF"
+ * @return {string}
+ */
+HUri.prototype.toJSON = function() {
+  return "u:" + parse(this);
+};
+function parse(self) {
+  var s = "";
+  for (var i = 0; i < self.val.length; ++i) {
+    var c = self.val.charAt(i);
+    if (HVal.cc(c) < HVal.cc(" "))
+      throw new Error("Invalid URI char '" + self.val + "', char='" + c + "'");
+    if (c === "`") s += "\\";
+    s += c;
+  }
+
+  return s;
+}
 
 /**
  * Singleton value for empty URI

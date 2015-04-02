@@ -15,9 +15,9 @@ var TESTS = [
   "FilterTest",
   "GridTest",
   "ZincTest",
-  "UtilTest",
-  "CsvTest",
-  "JsonTest"
+  "UtilTest"
+//  "CsvTest",    // CsvTest is run asynchronously
+//  "JsonTest",   // JsonTest is run asynchronously
 //  "ClientTest", // ClientTest is run asynchronously
 //  "ServerTest"  // ServerTest is run asynchronously
 ];
@@ -62,30 +62,32 @@ function runTests(tests) {
     }
   }
 
-  var testClient = true;
-
-  // run async tests
-  if (testClient) {
-    var obj = require("./ClientTest");
-    var start = new Date().getTime();
-    console.log("-- Run:  ClientTest.test...");
-    obj.test(function() {
-      console.log("   Pass: ClientTest.test");
-      var end = new Date().getTime();
-      console.log("Time for tests: " + ((end - start) / 1000.0) + " secs");
-    });
-  } else {
-    var obj = require("./ServerTest");
-    var start = new Date().getTime();
-    console.log("-- Run:  ServerTest.test...");
-    obj.test(function() {
-      console.log("   Pass: ServerTest.test");
-      var end = new Date().getTime();
-      console.log("Time for tests: " + ((end - start) / 1000.0) + " secs");
-    });
-  }
-
   return allPassed;
 }
 
 runTests(TESTS);
+var start = new Date().getTime();
+console.log("-- Run:  JsonTest.test...");
+require('./JsonTest').test(function() {
+  console.log("   Pass: JsonTest.test");
+  var end = new Date().getTime();
+  console.log("Time for tests: " + ((end - start) / 1000.0) + " secs");
+
+  var obj = require("./ClientTest");
+  start = new Date().getTime();
+  console.log("-- Run:  ClientTest.test...");
+  obj.test(function() {
+    console.log("   Pass: ClientTest.test");
+    end = new Date().getTime();
+    console.log("Time for tests: " + ((end - start) / 1000.0) + " secs");
+
+    obj = require("./ServerTest");
+    start = new Date().getTime();
+    console.log("-- Run:  ServerTest.test...");
+    obj.test(function() {
+      console.log("   Pass: ServerTest.test");
+      end = new Date().getTime();
+      console.log("Time for tests: " + ((end - start) / 1000.0) + " secs");
+    });
+  });
+});
