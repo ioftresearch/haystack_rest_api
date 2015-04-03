@@ -88,6 +88,15 @@ require('./JsonTest').test(function() {
       console.log("   Pass: ServerTest.test");
       end = new Date().getTime();
       console.log("Time for tests: " + ((end - start) / 1000.0) + " secs");
+
+      obj = require("./ServerJsonTest");
+      start = new Date().getTime();
+      console.log("-- Run:  ServerJsonTest.test...");
+      obj.test(function() {
+        console.log("   Pass: ServerJsonTest.test");
+        end = new Date().getTime();
+        console.log("Time for tests: " + ((end - start) / 1000.0) + " secs");
+      });
     });
   });
 });

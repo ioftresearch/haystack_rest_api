@@ -16,8 +16,6 @@ var HGridReader = require('./HGridReader'),
 //Fields
 //////////////////////////////////////////////////////////////////////////
 
-var version;
-var streaming = true;
 var input;
 
 /**
@@ -48,10 +46,6 @@ function _json(obj) {
  * @param {Stream.Readable} i - if anything other than a Readable is passed, it is converted
  */
 function HJsonReader(i) {
-  if (!(i instanceof Stream.Readable))
-    streaming = false;
-
-  isFilter = false;
   input = i;
 }
 HJsonReader.prototype = Object.create(HGridReader.prototype);
@@ -103,7 +97,7 @@ function parseVal(val) {
       for (var i=2; i< v.length; i++) v[1] += ' ' + v[i];
       return HRef.make(v[0], v[1]);
     } else {
-      return val;
+      throw new Error("Invalid Type Reference: '" + type + val + "'");
     }
   }
 }
@@ -119,63 +113,57 @@ function readDict(meta, dict) {
  * @return {HGrid}
  */
 HJsonReader.prototype.readGrid = function(callback) {
+  if (!(input instanceof Stream.Readable)) { // input is our entire string
+    var json = (typeof(input)==='string' || input instanceof String ? JSON.parse(input) : input);
+    _readGrid(json, callback);
+  } else {
+    var data = "";
+
+    input.on('data', function(d) {
+      data += d.toString();
+    });
+    input.on('end', function() {
+      _readGrid(JSON.parse(data), callback);
+    });
+  }
+};
+
+function _readGrid(json, callback) {
   var cb = true;
   try {
     var b = new HGridBuilder();
-    if (!streaming) { // input is our entire string
-      var json = JSON.parse(input);
-      // meta line
-      var ver = json.meta.ver;
-      if (typeof(ver)==='undefined' || ver!=='2.0') throw err("Expecting JSON header { ver: '2.0' }, not '" + _json(json.meta) + "'");
-      // remove ver so it is not parsed
-      delete json.meta.ver;
-      readDict(json.meta, b.meta());
+    // meta line
+    var ver = json.meta.ver;
+    if (typeof(ver)==='undefined' || ver!=='2.0') throw err("Expecting JSON header { ver: '2.0' }, not '" + _json(json.meta) + "'");
+    // remove ver so it is not parsed
+    delete json.meta.ver;
+    readDict(json.meta, b.meta());
 
-      // read cols
-      for (var i=0; i<json.cols.length; i++) {
-        var dict = b.addCol(json.cols[i].name);
-        var keys = Object.keys(json.cols[i]);
-        for (var k=0; k<keys.length; k++) {
-          if (keys[k]==='name') continue;
-          dict.add(keys[k], parseVal(json.cols[i][keys[k]]));
-        }
+    // read cols
+    for (var i=0; i<json.cols.length; i++) {
+      var dict = b.addCol(json.cols[i].name);
+      var keys = Object.keys(json.cols[i]);
+      for (var k=0; k<keys.length; k++) {
+        if (keys[k]==='name') continue;
+        dict.add(keys[k], parseVal(json.cols[i][keys[k]]));
       }
-
-      // rows
-      if (json.rows.length==0) {
-        var cells = [];
-        for (var c=0; c<json.cols.length; c++) cells[c] = null;
-        b.addRow(cells);
-      } else {
-        for (var i=0; i<json.rows.length || i===0; i++) {
-          var cells = [];
-          for (var c=0; c<json.cols.length; c++) {
-            var val = json.rows[i][json.cols[c].name];
-            if (typeof(val)!=='undefined' && val!==null) cells[c] = parseVal(val);
-            else cells[c] = null;
-          }
-
-          b.addRow(cells);
-        }
-      }
-
-      cb = false;
-      callback(null, b.toGrid());
-    } else {
-      var data = "";
-
-      input.on('data', function(d) {
-        data += d.toString();
-      });
-      input.on('end', function() {
-        console.log(data);
-        cb = false;
-        callback(null, b.toGrid());
-      });
     }
+
+    // rows
+    for (var i=0; i<json.rows.length; i++) {
+      var cells = [];
+      for (var c=0; c<json.cols.length; c++) {
+        var val = json.rows[i][json.cols[c].name];
+        if (typeof(val)!=='undefined' && val!==null) cells[c] = parseVal(val);
+        else cells[c] = null;
+      }
+
+      b.addRow(cells);
+    }
+
+    cb = false;
+    callback(null, b.toGrid());
   } catch (err) {
-    console.log("ERR:" + err);
-    console.log(err.stack);
     if (cb) callback(err);
   }
-};
+}

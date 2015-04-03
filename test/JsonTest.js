@@ -270,8 +270,7 @@ function _test() {
     case 11:
       verifyGridRead(
           "ver:\"2.0\"\n" +
-          "fooBar33\n" +
-          "N\n",
+          "fooBar33\n",
           "{\"meta\": {\"ver\":\"2.0\"},\n" +
           "\"cols\":[" +
           "{\"name\":\"fooBar33\"}" +
@@ -309,8 +308,8 @@ function _test() {
           "ver:\"2.0\"\n" +
           "foo\n" +
           "`foo$20bar`\n" +
-          //"`foo\\`bar`\n" +
-          //"`file \\#2`\n" +
+            //"`foo\\`bar`\n" +
+            //"`file \\#2`\n" +
           "`foo\\`bar`\n" +
           "`file #2`\n" +
           "\"$15\"\n",
@@ -318,8 +317,8 @@ function _test() {
           "\"cols\":[{\"name\":\"foo\"}],\n" +
           "\"rows\":[\n" +
           "{\"foo\":\"u:foo$20bar\"},\n" +
-          //"{\"foo\":\"u:foo\\`bar\"},\n" +
-          //"{\"foo\":\"u:file \\#2\"},\n" +
+            //"{\"foo\":\"u:foo\\`bar\"},\n" +
+            //"{\"foo\":\"u:file \\#2\"},\n" +
           "{\"foo\":\"u:foo`bar\"},\n" +
           "{\"foo\":\"u:file #2\"},\n" +
           "{\"foo\":\"s:$15\"}\n" +
@@ -427,7 +426,7 @@ function _test() {
       verifyGridRead(
           "ver:\"2.0\" bg:Bin(image/jpeg) mark\n" +
           "file1 dis:\"F1\" icon:Bin(image/gif),file2 icon:Bin(image/jpg)\n" +
-          //"file1,file2\n" +
+            //"file1,file2\n" +
           "Bin(text/plain),\n" +
           "4,Bin(image/png)\n" +
           "Bin(text/html; a=foo; bar=\"sep\"),Bin(text/html; charset=utf8)\n",

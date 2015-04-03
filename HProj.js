@@ -111,7 +111,7 @@ HProj.prototype.read = function(filter, checked, callback) {
   this.readAll(filter, 1, function(err, grid) {
     if (err) {
       callback(err);
-      return
+      return;
     }
     if (grid.numRows() > 0) {
       callback(null, grid.row(0));

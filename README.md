@@ -75,7 +75,9 @@ app.js - using Express
 
     var app = express();
 
-    app.use(bodyParser.text());
+    app.use(bodyParser.text({ type: 'text/*' }));
+    app.use(bodyParser.json()); // if you are using JSON instead of ZINC you need this
+
     app.all('*', function(req, res) {
       var path = url.parse(req.url).pathname;
 
@@ -121,7 +123,7 @@ app.js - using Express
       console.log('Node Haystack Toolkit listening at http://%s:%s', host, port);
 
     });
-
+    
 run from console
 
     node app.js

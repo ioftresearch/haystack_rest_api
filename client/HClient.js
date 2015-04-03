@@ -19,6 +19,8 @@ var http = require('http'),
     HProj = require('../HProj'),
     HWatch = require('../HWatch'),
     HVal = require('../HVal'),
+    HJsonReader = require('../io/HJsonReader'),
+    HJsonWriter = require('../io/HJsonWriter'),
     HZincReader = require('../io/HZincReader'),
     HZincWriter = require('../io/HZincWriter'),
     Base64 = require('../util/Base64'),
@@ -34,8 +36,9 @@ var http = require('http'),
  * @param {string} uri
  * @param {string} user
  * @param {string} pass
+ * @param {string} format - ZINC or JSON (defaults to ZINC)
  */
-function HClient(uri, user, pass) {
+function HClient(uri, user, pass, format) {
   // check uri
   if (!HVal.startsWith(uri, "http://") && !HVal.startsWith(uri, "https://"))
     throw new Error("Invalid uri format: " + uri);
@@ -49,6 +52,9 @@ function HClient(uri, user, pass) {
   this.authProperty = null;
   this.cookieProperty = null;
   this.uwatches = {};
+  this.format = format;
+  if (typeof(format)==='undefined')
+    this.format = "ZINC";
 
   /** Base URI for connection such as "http://host/api/demo/".
    This string always ends with slash. */
@@ -386,8 +392,12 @@ HClient.prototype.authenticate = function(callback) {
  * @param {function} callback
  * @return {HClient}
  */
-HClient.open = function(uri, user, pass, callback) {
-  new HClient(uri, user, pass).open(callback);
+HClient.open = function(uri, user, pass, format, callback) {
+  if (typeof(format)==='function') {
+    callback = format;
+    format = undefined;
+  }
+  new HClient(uri, user, pass, format).open(callback);
 };
 
 /**
@@ -522,7 +532,12 @@ function postString(t, op, data, callback) {
   var url = t.uri + op;
   var headers = {};
   headers.Connection = "Close";
-  headers["Content-Type"] = "text/plain; charset=utf-8";
+  if (t.format==='JSON') {
+    headers["Content-Type"] = "application/json; charset=utf-8";
+    headers["Accept"] = "application/json";
+  } else {
+    headers["Content-Type"] = "text/plain; charset=utf-8";
+  }
   headers["Content-Length"] = Buffer.byteLength(data);
   if (t.authProperty !== null && typeof(t.authProperty)!=='undefined') headers[t.authProperty.key] = t.authProperty.value;
   if (t.cookieProperty !== null && typeof(t.cookieProperty)!=='undefined') headers[t.cookieProperty.key] = t.cookieProperty.value;
@@ -573,7 +588,7 @@ function postString(t, op, data, callback) {
  * @returns {HGrid}
  */
 function postGrid(t, op, req, callback) {
-  HZincWriter.gridToString(req, function(err, reqStr) {
+  getWriter(t).gridToString(req, function(err, reqStr) {
     if (err) {
       callback(err);
       return;
@@ -583,10 +598,21 @@ function postGrid(t, op, req, callback) {
       if (err) {
         callback(err);
       } else {
-        new HZincReader(str).readGrid(callback);
+        new getReader(t, str).readGrid(callback);
       }
     });
   });
+}
+
+function getReader(t, str) {
+  if (t.format==='JSON') return new HJsonReader(str);
+
+  return new HZincReader(str);
+}
+function getWriter(t) {
+  if (t.format==='JSON') return HJsonWriter;
+
+  return HZincWriter;
 }
 
 /**
@@ -659,13 +685,13 @@ HClient.prototype.evalAll = function(req, checked, callback) {
     req = b.toGrid();
   }
 
-  HZincWriter.gridToString(req, function(err, reqStr) {
+  getWriter(self).gridToString(req, function(err, reqStr) {
     if (err) {
       callback(err);
     } else {
 
       postString(self, "evalAll", reqStr, function(err, str) {
-        new HZincReader(str).readGrids(function (err, res) {
+        new getReader(self, str).readGrids(function (err, res) {
           if (checked) {
             for (i = 0; i < res.length; ++i) {
               if (res[i].isErr()) {
