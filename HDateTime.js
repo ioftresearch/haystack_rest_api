@@ -29,6 +29,7 @@ function HDateTime(date, time, tz, tzOffset) {
   this.time = time;
   this.tz = tz;
   this.tzOffset = (typeof(tzOffset) === 'undefined' ? 0 : tzOffset);
+  this.moment = null;
 }
 HDateTime.prototype = Object.create(HVal.prototype);
 module.exports = HDateTime;
@@ -70,7 +71,7 @@ function getMomentDate(date, time, tz) {
     ds += time.ms;
   }
 
-  return moment.tz(ds, tz.js.name);
+  return (this.moment = moment.tz(ds, tz.js.name));
 }
 
 /**
@@ -132,6 +133,14 @@ HDateTime.prototype.compareTo = function(that) {
   else if (thisMillis > thatMillis) return 1;
   return 0;
 };
+
+HDateTime.prototype.toLocaleString = function() {
+  return new Date(this.mils).toLocaleString();
+};
+HDateTime.prototype.toDateString = function() {
+  return new Date(this.mils).toString();
+};
+HDateTime.prototype.getMoment = function() { return this.moment; };
 
 /**
  * Construct from various values
@@ -204,7 +213,6 @@ HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
     tzOffset = m.utcOffset() * 60;
 
     ts = HDateTime.make(HDate.make(m.year(), m.month() + 1, m.date()), HTime.make(m.hour(), m.minute(), m.second(), m.millisecond()), tz, tzOffset);
-    ts.mils = parseInt(m.valueOf());
 
     return ts;
   }

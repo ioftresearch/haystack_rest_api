@@ -167,3 +167,11 @@ function _readGrid(json, callback) {
     if (cb) callback(err);
   }
 }
+
+/**
+ * Read a scalar value.
+ * @return {HVal}
+ */
+HJsonReader.prototype.readScalar = function() {
+  return parseVal(input);
+};

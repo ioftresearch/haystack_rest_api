@@ -1,6 +1,6 @@
 {
   "name": "nodehaystack",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "Project haystack light weight node.js compliant client and server implementation ",
   "author": "Shawn Jacobson <shawn.jacobson@lynxspring.com> (http://www.lynxsprng.com)",
   "license": "AFL-3.0",

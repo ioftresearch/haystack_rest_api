@@ -50,7 +50,7 @@ HBool.prototype.toZinc = function() {
  * @returns string
  */
 HBool.prototype.toJSON = function() {
-  return this.val.toString();
+  return this.toString();
 };
 
 /**
