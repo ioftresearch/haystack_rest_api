@@ -181,13 +181,12 @@ Property.prototype.toString = function() {
 
 /**
  * Authenticate using Basic HTTP
- * @private
  * @memberof HClient
  * @param {HClient} t (this)
  * @param {Response} resp
  * @param {function} callback
  */
-function authenticateBasic(t, resp, callback) {
+HClient.prototype.authenticateBasic = function(t, resp, callback) {
   // According to http://en.wikipedia.org/wiki/Basic_access_authentication,
   // we are supposed to get a "WWW-Authenticate" header, that has the 'realm' in it.
   // We don't get it, but it doesn't matter.  Just set up a Property
@@ -245,13 +244,12 @@ HClient.prototype.parseUrl = function(url) {
 };
 /**
  * Authenticate with SkySpark nonce based HMAC SHA-1 mechanism.
- * @private
  * @memberof HClient
  * @param {HClient} t (this)
  * @param {Response} resp
  * @param {function} callback
  */
-function authenticateFolio(t, resp, callback) {
+HClient.prototype.authenticateFolio = function(t, resp, callback) {
   var authUri = resp.headers["folio-auth-api-uri"];
   if (typeof(authUri) === 'undefined' || authUri === null) {
     callback(new Error("Missing 'Folio-Auth-Api-Uri' header"));
@@ -345,11 +343,6 @@ function authenticateFolio(t, resp, callback) {
  */
 HClient.prototype.authenticate = function(callback) {
   var self = this;
-  // provided hook for extending auth methods
-  if (self._authenticate!==undefined) {
-    self._authenticate(callback);
-    return;
-  }
 
   // make request to about to get headers
   var url = self.uri + "about";
@@ -357,7 +350,7 @@ HClient.prototype.authenticate = function(callback) {
   http.get(url, function(res) {
     var folioAuthUri = res.headers["folio-auth-api-uri"];
     if (typeof(folioAuthUri) !== 'undefined' && folioAuthUri !== null) {
-      authenticateFolio(self, res, callback);
+      self.authenticateFolio(self, res, callback);
       return;
     }
 
@@ -368,7 +361,7 @@ HClient.prototype.authenticate = function(callback) {
         return;
       case 302:
       case 401:
-        authenticateBasic(self, res, callback);
+        self.authenticateBasic(self, res, callback);
         return;
       default:
         callback(new Error("Unexpected Response Code: " + respCode));
