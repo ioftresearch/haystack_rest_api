@@ -75,8 +75,7 @@ HOp.prototype.onServiceOp = function(db, req, res, callback) {
 };
 function _onServiceOp(self, db, req, res, reqGrid, callback) {
   if (typeof(reqGrid) === 'undefined' && reqGrid === null) {
-    callback();
-    return;
+    return callback();
   }
 
   // route to onService(HServer, HGrid)
@@ -119,8 +118,7 @@ function getToGrid(req, callback) {
 
     var keys = Object.keys(query);
     if (keys.length === 0) {
-      callback(null, HGrid.EMPTY);
-      return;
+      return callback(null, HGrid.EMPTY);
     }
 
     var b = new HDictBuilder();
@@ -155,7 +153,7 @@ function postToGrid(req, res, callback) {
   if (typeof(mime) === 'undefined' || mime === null) {
     res.statusCode = 400;
     res.statusMessage = "Missing 'Content-Type' header";
-    return null;
+    return callback(new Error(res.statusMessage));
   }
 
   // check if we have a format that supports reading the content type
@@ -163,7 +161,7 @@ function postToGrid(req, res, callback) {
   if (typeof(format) === 'undefined' || format === null || typeof(format.reader) === 'undefined' || format.reader === null) {
     res.statusCode = 415;
     res.statusMessage = "No format reader available for MIME type: " + mime;
-    return null;
+    return callback(new Error(res.statusMessage));
   }
 
   // read the grid
