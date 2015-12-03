@@ -26,7 +26,8 @@ var url = require('url'),
     HHisItem = require('../HHisItem'),
     HMarker = require('../HMarker'),
     HNum = require('../HNum'),
-    HStr = require('../HStr');
+    HStr = require('../HStr'),
+    HUri = require('../HUri');
 
 /**
  * @constructor
@@ -159,7 +160,7 @@ function NavOp() {
     var navId = null;
     if (!req.isEmpty()) {
       var val = req.row(0).get("navId", false);
-      if (val instanceof HStr) navId = val.val;
+      if (val instanceof HStr || val instanceof HUri) navId = val.val;
     }
     db.nav(navId, callback);
   };
