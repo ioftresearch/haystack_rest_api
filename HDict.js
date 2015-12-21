@@ -210,12 +210,10 @@ function cc(c) {
 }
 
 var tagChars = [];
-{
-  for (var i = cc("a"); i <= cc("z"); ++i) tagChars[i] = true;
-  for (var i = cc("A"); i <= cc("Z"); ++i) tagChars[i] = true;
-  for (var i = cc("0"); i <= cc("9"); ++i) tagChars[i] = true;
-  tagChars[cc("_")] = true;
-}
+for (var i = cc("a"); i <= cc("z"); ++i) tagChars[i] = true;
+for (var i = cc("A"); i <= cc("Z"); ++i) tagChars[i] = true;
+for (var i = cc("0"); i <= cc("9"); ++i) tagChars[i] = true;
+tagChars[cc("_")] = true;
 
 /**
  * Return if the given string is a legal tag name.  The

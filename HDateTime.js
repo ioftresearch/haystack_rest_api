@@ -10,8 +10,6 @@
 
 var HVal = require('./HVal');
 
-var mils; // long - millis since Epoch
-
 /**
  * HDateTime models a timestamp with a specific timezone.
  * @see {@link http://project-haystack.org/doc/TagModel#tagKinds|Project Haystack}
@@ -30,6 +28,7 @@ function HDateTime(date, time, tz, tzOffset) {
   this.tz = tz;
   this.tzOffset = (typeof(tzOffset) === 'undefined' ? 0 : tzOffset);
   this.moment = null;
+  this.mils = null; // long - millis since Epoch
 }
 HDateTime.prototype = Object.create(HVal.prototype);
 module.exports = HDateTime;

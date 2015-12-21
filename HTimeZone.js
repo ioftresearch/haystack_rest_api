@@ -118,78 +118,76 @@ HTimeZone.make = function(arg1, checked) {
   }
 };
 
-{
-  try {
-    // only time zones which start with these
-    // regions are considered valid timezones
-    var regions = {};
-    regions.Africa = "ok";
-    regions.America = "ok";
-    regions.Antarctica = "ok";
-    regions.Asia = "ok";
-    regions.Atlantic = "ok";
-    regions.Australia = "ok";
-    regions.Etc = "ok";
-    regions.Europe = "ok";
-    regions.Indian = "ok";
-    regions.Pacific = "ok";
+try {
+  // only time zones which start with these
+  // regions are considered valid timezones
+  var regions = {};
+  regions.Africa = "ok";
+  regions.America = "ok";
+  regions.Antarctica = "ok";
+  regions.Asia = "ok";
+  regions.Atlantic = "ok";
+  regions.Australia = "ok";
+  regions.Etc = "ok";
+  regions.Europe = "ok";
+  regions.Indian = "ok";
+  regions.Pacific = "ok";
 
-    // iterate Javascript timezone IDs available
-    var ids = moment.tz.names();
+  // iterate Javascript timezone IDs available
+  var ids = moment.tz.names();
 
-    for (var i = 0; i < ids.length; ++i) {
-      var js = ids[i];
+  for (var i = 0; i < ids.length; ++i) {
+    var js = ids[i];
 
-      // skip ids not formatted as Region/City
-      var slash = js.indexOf('/');
-      if (slash < 0) continue;
-      var region = js.substring(0, slash);
-      if (typeof(regions[region]) === 'undefined' || regions[region] === null) continue;
+    // skip ids not formatted as Region/City
+    var slash = js.indexOf('/');
+    if (slash < 0) continue;
+    var region = js.substring(0, slash);
+    if (typeof(regions[region]) === 'undefined' || regions[region] === null) continue;
 
-      // get city name as haystack id
-      slash = js.lastIndexOf('/');
-      var haystack = js.substring(slash + 1);
+    // get city name as haystack id
+    slash = js.lastIndexOf('/');
+    var haystack = js.substring(slash + 1);
 
-      // store mapping b/w Javascript <-> Haystack
-      toJS[haystack] = js;
-      fromJS[js] = haystack;
-    }
-  } catch (err) {
-    console.log(err.stack);
+    // store mapping b/w Javascript <-> Haystack
+    toJS[haystack] = js;
+    fromJS[js] = haystack;
   }
-
-  var utc;
-  try {
-    utc = HTimeZone.make(moment.tz.zone("Etc/UTC"));
-  } catch (err) {
-    console.log(err.stack);
-  }
-
-  var def;
-  try {
-    // check if configured with system property
-    var defName = process.env["haystack.tz"];
-    if (typeof(defName) !== 'undefined' && defName !== null) {
-      def = HTimeZone.make(defName, false);
-      if (typeof(def) === 'undefined' || def === null)
-        console.log("WARN: invalid haystack.tz system property: " + defName);
-    }
-
-    // if we still don't have a default, try to use Javascript's
-    if (typeof(def) === 'undefined' || def === null) {
-      var date = new Date().toString();
-      var gmtStart = date.indexOf("GMT");
-      var gmtEnd = date.indexOf(" ", gmtStart);
-      def = HTimeZone.make(fromJS[fixGMT(date.substring(gmtStart, gmtEnd))]);
-    }
-  } catch (err) {
-    console.log(err.stack);
-    def = utc;
-  }
-
-  /** UTC timezone */
-  HTimeZone.UTC = utc;
-
-  /** Default timezone for VM */
-  HTimeZone.DEFAULT = def;
+} catch (err) {
+  console.log(err.stack);
 }
+
+var utc;
+try {
+  utc = HTimeZone.make(moment.tz.zone("Etc/UTC"));
+} catch (err) {
+  console.log(err.stack);
+}
+
+var def;
+try {
+  // check if configured with system property
+  var defName = process.env["haystack.tz"];
+  if (typeof(defName) !== 'undefined' && defName !== null) {
+    def = HTimeZone.make(defName, false);
+    if (typeof(def) === 'undefined' || def === null)
+      console.log("WARN: invalid haystack.tz system property: " + defName);
+  }
+
+  // if we still don't have a default, try to use Javascript's
+  if (typeof(def) === 'undefined' || def === null) {
+    var date = new Date().toString();
+    var gmtStart = date.indexOf("GMT");
+    var gmtEnd = date.indexOf(" ", gmtStart);
+    def = HTimeZone.make(fromJS[fixGMT(date.substring(gmtStart, gmtEnd))]);
+  }
+} catch (err) {
+  console.log(err.stack);
+  def = utc;
+}
+
+/** UTC timezone */
+HTimeZone.UTC = utc;
+
+/** Default timezone for VM */
+HTimeZone.DEFAULT = def;

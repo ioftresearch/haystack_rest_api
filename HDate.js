@@ -160,12 +160,11 @@ HDate.make = function(arg, month, day) {
   if (arg instanceof Date) {
     return new HDate(arg.getFullYear(), arg.getMonth() + 1, arg.getDate());
   } else if (HVal.typeis(arg, 'string', String)) {
-    try {
-      var s = arg.split('-');
-      return new HDate(parseInt(s[0]), parseInt(s[1]), parseInt(s[2]));
-    } catch (err) {
-      throw err;
-    }
+    var s = arg.split('-');
+    if (s.length<3)
+      throw new Error("Invalid string format, should be YYYY-MM-DD");
+
+    return new HDate(parseInt(s[0]), parseInt(s[1]), parseInt(s[2]));
   } else {
     if (arg < 1900) throw new Error("Invalid year");
     if (month < 1 || month > 12) throw new Error("Invalid month");

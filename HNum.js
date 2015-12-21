@@ -28,15 +28,13 @@ HNum.prototype = Object.create(HVal.prototype);
 module.exports = HNum;
 
 var unitChars = [];
-{
-  for (var i = 0; i < 128; i++) unitChars[i] = false;
-  for (var i = HVal.cc('a'); i <= HVal.cc('z'); ++i) unitChars[i] = true;
-  for (var i = HVal.cc('A'); i <= HVal.cc('Z'); ++i) unitChars[i] = true;
-  unitChars[HVal.cc('_')] = true;
-  unitChars[HVal.cc('$')] = true;
-  unitChars[HVal.cc('%')] = true;
-  unitChars[HVal.cc('/')] = true;
-}
+for (var i = 0; i < 128; i++) unitChars[i] = false;
+for (var i = HVal.cc('a'); i <= HVal.cc('z'); ++i) unitChars[i] = true;
+for (var i = HVal.cc('A'); i <= HVal.cc('Z'); ++i) unitChars[i] = true;
+unitChars[HVal.cc('_')] = true;
+unitChars[HVal.cc('$')] = true;
+unitChars[HVal.cc('%')] = true;
+unitChars[HVal.cc('/')] = true;
 
 /**
  * Return true if the given string is null or contains only valid unit

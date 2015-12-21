@@ -13,12 +13,6 @@ var HGridWriter = require('./HGridWriter'),
     HGrid = require('../HGrid'),
     Writer = require('./Streams').Writer;
 
-//////////////////////////////////////////////////////////////////////////
-//Fields
-//////////////////////////////////////////////////////////////////////////
-
-var out;
-
 /**
  * HZincWriter is used to write grids in the Zinc format
  * @see {@link http://project-haystack.org/doc/Zinc|Project Haystack}
@@ -28,7 +22,7 @@ var out;
  * @param {Stream.Writable} o
  */
 function HZincWriter(o) {
-  out = o;
+  this.out = o;
 }
 HZincWriter.prototype = Object.create(HGridWriter.prototype);
 module.exports = HZincWriter;
@@ -37,17 +31,17 @@ module.exports = HZincWriter;
  * @memberof HZincWriter
  * @param {HDict} meta
  */
-function writeMeta(meta) {
+function writeMeta(self, meta) {
   if (meta.isEmpty()) return;
   for (var it = meta.iterator(); it.hasNext();) {
     var entry = it.next();
     var name = entry.getKey();
     var val = entry.getValue();
-    out.write(' ');
-    out.write(name);
+    self.out.write(' ');
+    self.out.write(name);
     if (val !== HMarker.VAL) {
-      out.write(':');
-      out.write(val.toZinc());
+      self.out.write(':');
+      self.out.write(val.toZinc());
     }
   }
 }
@@ -55,24 +49,24 @@ function writeMeta(meta) {
  * @memberof HZincWriter
  * @param {HCol} col
  */
-function writeCol(col) {
-  out.write(col.name());
-  writeMeta(col.meta());
+function writeCol(self, col) {
+  self.out.write(col.name());
+  writeMeta(self, col.meta());
 }
 /**
  * @memberof HZincWriter
  * @param {HGrid} grid
  * @param {HRow} row
  */
-function writeRow(grid, row) {
+function writeRow(self, grid, row) {
   for (var i = 0; i < grid.numCols(); ++i) {
     var val = row.get(grid.col(i), false);
-    if (i > 0) out.write(',');
+    if (i > 0) self.out.write(',');
     if (typeof(val) === 'undefined' || val === null) {
-      if (i === 0) out.write('N');
+      if (i === 0) self.out.write('N');
     }
     else {
-      out.write(val.toZinc());
+      self.out.write(val.toZinc());
     }
   }
 }
@@ -85,27 +79,29 @@ HZincWriter.prototype.writeGrid = function(grid, callback) {
   var cb = true;
   try {
     // meta
-    out.write("ver:\"2.0\"");
-    writeMeta(grid.meta());
-    out.write('\n');
+    this.out.write("ver:\"2.0\"");
+    writeMeta(this, grid.meta());
+    this.out.write('\n');
 
     var i;
     // cols
     for (i = 0; i < grid.numCols(); ++i) {
-      if (i > 0) out.write(',');
-      writeCol(grid.col(i));
+      if (i > 0) this.out.write(',');
+      writeCol(this, grid.col(i));
     }
-    out.write('\n');
+    this.out.write('\n');
 
     // rows
     for (i = 0; i < grid.numRows(); ++i) {
-      writeRow(grid, grid.row(i));
-      out.write('\n');
+      writeRow(this, grid, grid.row(i));
+      this.out.write('\n');
     }
 
     cb = false;
+    this.out.end();
     callback();
   } catch (err) {
+    this.out.end();
     if (cb) callback(err);
   }
 };

@@ -12,12 +12,6 @@ var HGridReader = require('./HGridReader'),
     Stream = require('stream'),
     HVal = require('../HVal');
 
-//////////////////////////////////////////////////////////////////////////
-//Fields
-//////////////////////////////////////////////////////////////////////////
-
-var input;
-
 /**
  * @memberof HJsonReader
  * @return {Error}
@@ -46,7 +40,7 @@ function _json(obj) {
  * @param {Stream.Readable} i - if anything other than a Readable is passed, it is converted
  */
 function HJsonReader(i) {
-  input = i;
+  this.input = i;
 }
 HJsonReader.prototype = Object.create(HGridReader.prototype);
 module.exports = HJsonReader;
@@ -113,16 +107,16 @@ function readDict(meta, dict) {
  * @return {HGrid}
  */
 HJsonReader.prototype.readGrid = function(callback) {
-  if (!(input instanceof Stream.Readable)) { // input is our entire string
-    var json = (typeof(input)==='string' || input instanceof String ? JSON.parse(input) : input);
+  if (!(this.input instanceof Stream.Readable)) { // this.input is our entire string
+    var json = (typeof(this.input)==='string' || this.input instanceof String ? JSON.parse(this.input) : this.input);
     _readGrid(json, callback);
   } else {
     var data = "";
 
-    input.on('data', function(d) {
+    this.input.on('data', function(d) {
       data += d.toString();
     });
-    input.on('end', function() {
+    this.input.on('end', function() {
       _readGrid(JSON.parse(data), callback);
     });
   }
@@ -173,5 +167,5 @@ function _readGrid(json, callback) {
  * @return {HVal}
  */
 HJsonReader.prototype.readScalar = function() {
-  return parseVal(input);
+  return parseVal(this.input);
 };

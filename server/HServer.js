@@ -188,7 +188,9 @@ function _iterate(self, it, limit, f, acc, callback) {
         acc[acc.length] = rec;
 
       if (acc.length < limit && it.hasNext()) {
-        _iterate(self, it, limit, f, acc, callback);
+        setImmediate(function() {
+          _iterate(self, it, limit, f, acc, callback);
+        });
       } else {
         callback(null, acc);
       }

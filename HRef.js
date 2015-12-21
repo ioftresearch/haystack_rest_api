@@ -116,17 +116,15 @@ HRef.isId = function(id) {
 };
 
 var idChars = [];
-{
-  for (var i = 0; i < 127; i++) idChars[i] = false;
-  for (var i = HVal.cc('a'); i <= HVal.cc('z'); ++i) idChars[i] = true;
-  for (var i = HVal.cc('A'); i <= HVal.cc('Z'); ++i) idChars[i] = true;
-  for (var i = HVal.cc('0'); i <= HVal.cc('9'); ++i) idChars[i] = true;
-  idChars[HVal.cc('_')] = true;
-  idChars[HVal.cc(':')] = true;
-  idChars[HVal.cc('-')] = true;
-  idChars[HVal.cc('.')] = true;
-  idChars[HVal.cc('~')] = true;
-}
+for (var i = 0; i < 127; i++) idChars[i] = false;
+for (var i = HVal.cc('a'); i <= HVal.cc('z'); ++i) idChars[i] = true;
+for (var i = HVal.cc('A'); i <= HVal.cc('Z'); ++i) idChars[i] = true;
+for (var i = HVal.cc('0'); i <= HVal.cc('9'); ++i) idChars[i] = true;
+idChars[HVal.cc('_')] = true;
+idChars[HVal.cc(':')] = true;
+idChars[HVal.cc('-')] = true;
+idChars[HVal.cc('.')] = true;
+idChars[HVal.cc('~')] = true;
 
 /**
  * Is the given character valid in the identifier part

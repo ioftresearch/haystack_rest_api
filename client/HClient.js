@@ -9,7 +9,6 @@
 //
 
 var http = require('http'),
-    util = require('util'),
     crypto = require('crypto'),
     HDictBuilder = require('../HDictBuilder'),
     HGrid = require('../HGrid'),
