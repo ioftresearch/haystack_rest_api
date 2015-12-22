@@ -47,20 +47,21 @@ HCoord.prototype.lng = function() {
 };
 
 function uToStr(ud) {
+  var _ud = ud;
   var s = "";
-  if (ud < 0) {
+  if (_ud < 0) {
     s += "-";
-    ud = -ud;
+    _ud = -_ud;
   }
-  if (ud < 1000000.0) {
-    s += (ud / 1000000.0).toFixed(6).toString();
+  if (_ud < 1000000.0) {
+    s += (_ud / 1000000.0).toFixed(6).toString();
     // strip extra zeros
     while (s.charAt(s.length - 2) !== '.' && s.charAt(s.length - 1) === '0')
       s = s.substring(0, s.length - 1);
 
     return s;
   }
-  var x = ud.toString();
+  var x = _ud.toString();
   var dot = x.length - 6;
   var end = x.length;
   var i;

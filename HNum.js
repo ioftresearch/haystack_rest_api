@@ -159,7 +159,8 @@ HNum.NaN = new HNum(Number.NaN);
  * @return {HNum}
  */
 HNum.make = function(val, unit) {
-  if (unit === null) unit = undefined;
-  if (val === 0 && typeof(unit) === 'undefined') return HNum.ZERO;
-  return new HNum(val, unit);
+  var _unit = unit;
+  if (_unit === null) _unit = undefined;
+  if (val === 0 && typeof(_unit) === 'undefined') return HNum.ZERO;
+  return new HNum(val, _unit);
 };

@@ -51,20 +51,21 @@ HGridBuilder.dictToGrid = function(dict) {
  * @return {HGrid}
  */
 HGridBuilder.dictsToGrid = function(dicts, dict) {
-  if (typeof(dict) === 'undefined') dict = HDict.EMPTY;
+  var _dict = dict;
+  if (typeof(_dict) === 'undefined') _dict = HDict.EMPTY;
 
-  if (dicts.length === 0) return new HGrid(dict, [new HCol(0, "empty", HDict.EMPTY)], []);
+  if (dicts.length === 0) return new HGrid(_dict, [new HCol(0, "empty", HDict.EMPTY)], []);
 
   var b = new HGridBuilder();
-  b.dict.add(dict);
+  b.dict.add(_dict);
 
   // collect column names
   var colsByName = {};
   var hasId, hasMod;
   for (var i = 0; i < dicts.length; ++i) {
-    dict = dicts[i];
-    if (typeof(dict) === 'undefined' || dict === null) continue;
-    var it = dict.iterator();
+    _dict = dicts[i];
+    if (typeof(_dict) === 'undefined' || _dict === null) continue;
+    var it = _dict.iterator();
     while (it.hasNext()) {
       var entry = it.next();
       var name = entry.getKey();
@@ -112,13 +113,13 @@ HGridBuilder.dictsToGrid = function(dicts, dict) {
   // now map rows
   var numCols = b.cols.length;
   for (var ri = 0; ri < dicts.length; ++ri) {
-    dict = dicts[ri];
+    _dict = dicts[ri];
     var cells = [];
     for (var ci = 0; ci < numCols; ++ci) {
-      if (typeof(dict) === 'undefined' || dict === null)
+      if (typeof(_dict) === 'undefined' || _dict === null)
         cells[ci] = null;
       else {
-        cells[ci] = dict.get(b.cols[ci].name, false);
+        cells[ci] = _dict.get(b.cols[ci].name, false);
       }
     }
     b.rows[b.rows.length] = cells;

@@ -23,8 +23,7 @@ var HBool = require('./HBool'),
     HDict = require('./HDict'),
     HMarker = require('./HMarker'),
     HNum = require('./HNum'),
-    HStr = require('./HStr'),
-    util = require('util');
+    HStr = require('./HStr');
 
 /**
  * Return if size is zero
@@ -70,12 +69,13 @@ HDictBuilder.prototype.size = function() {
  * @return {HVal}
  */
 HDictBuilder.prototype.get = function(name, checked) {
-  if (typeof(checked) === 'undefined') checked = false;
+  var _checked = checked;
+  if (typeof(_checked) === 'undefined') _checked = false;
 
   var val = this.map[name];
   if (typeof(val) !== 'undefined' && val !== null)
     return val;
-  if (!checked) return null;
+  if (!_checked) return null;
   throw new Error("Unknown Name: " + name);
 };
 

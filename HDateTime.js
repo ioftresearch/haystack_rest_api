@@ -224,8 +224,9 @@ HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
  * @return {HDateTime}
  */
 HDateTime.now = function(tz) {
-  if (typeof(tz) === 'undefined')
-    tz = HTimeZone.DEFAULT;
+  var _tz = tz;
+  if (typeof(_tz) === 'undefined')
+    _tz = HTimeZone.DEFAULT;
   var d = new Date();
-  return HDateTime.make(d.getTime(), tz);
+  return HDateTime.make(d.getTime(), _tz);
 };

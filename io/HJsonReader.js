@@ -17,15 +17,17 @@ var HGridReader = require('./HGridReader'),
  * @return {Error}
  */
 function err(msg, ex) {
-  if (msg instanceof Error) {
-    ex = msg;
-    msg = ex.message;
-  } else if (typeof(ex) === 'undefined' || ex === null) {
-    ex = new Error(msg);
+  var _msg = msg;
+  var _ex = ex;
+  if (_msg instanceof Error) {
+    _ex = _msg;
+    _msg = _ex.message;
+  } else if (typeof(_ex) === 'undefined' || _ex === null) {
+    _ex = new Error(_msg);
   }
 
-  ex.message = msg;
-  return ex;
+  _ex.message = _msg;
+  return _ex;
 }
 function _json(obj) {
   return JSON.stringify(obj);

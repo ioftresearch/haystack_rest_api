@@ -77,7 +77,8 @@ function fixGMT(jsId) {
  * @returns {HTimeZone}
  */
 HTimeZone.make = function(arg1, checked) {
-  if (typeof(checked) === 'undefined') checked = true;
+  var _checked = checked;
+  if (typeof(_checked) === 'undefined') _checked = true;
 
   var jsId;
   if (HVal.typeis(arg1, 'string', String)) {
@@ -92,7 +93,7 @@ HTimeZone.make = function(arg1, checked) {
     // map haystack id to Javascript full id
     jsId = toJS[arg1];
     if (typeof(jsId) === 'undefined') {
-      if (checked) throw new Error("Unknown tz: " + arg1);
+      if (_checked) throw new Error("Unknown tz: " + arg1);
       return undefined;
     }
 
@@ -113,7 +114,7 @@ HTimeZone.make = function(arg1, checked) {
     var name = fromJS[jsId];
     if (typeof(name) !== 'undefined' && name !== null)
       return HTimeZone.make(name);
-    if (checked) throw new Error("Invalid Java timezone: " + arg1.name);
+    if (_checked) throw new Error("Invalid Java timezone: " + arg1.name);
     return;
   }
 };

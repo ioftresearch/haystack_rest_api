@@ -49,8 +49,9 @@ function writeVal(self, val) {
  * @param {boolean} first
  */
 function writeDictTags(self, dict, first) {
+  var _first = first;
   for (var it = dict.iterator(); it.hasNext();) {
-    if (first) first = false;
+    if (_first) _first = false;
     else self.out.write(", ");
     var entry = it.next();
     var name = entry.getKey();

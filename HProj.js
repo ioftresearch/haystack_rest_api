@@ -43,21 +43,23 @@ module.exports = HProj;
  * @return {HDict}
  */
 HProj.prototype.readById = function(id, checked, callback) {
-  if (typeof(checked)==='function') {
-    callback = checked;
-    checked = true;
+  var _checked = checked;
+  var _callback = callback;
+  if (typeof(_checked)==='function') {
+    _callback = _checked;
+    _checked = true;
   }
 
   this.onReadById(id, function(err, rec) {
     if (typeof(rec) !== 'undefined' && rec !== null) {
-      callback(null, rec);
+      _callback(null, rec);
       return;
     }
-    if (checked) {
-      callback(new Error("Unknown Rec: " + id));
+    if (_checked) {
+      _callback(new Error("Unknown Rec: " + id));
       return;
     }
-    callback(null, null);
+    _callback(null, null);
   });
 };
 
@@ -74,21 +76,23 @@ HProj.prototype.readById = function(id, checked, callback) {
  * @return {HGrid}
  */
 HProj.prototype.readByIds = function(ids, checked, callback) {
-  if (typeof(checked)==='function') {
-    callback = checked;
-    checked = true;
+  var _checked = checked;
+  var _callback = callback;
+  if (typeof(_checked)==='function') {
+    _callback = _checked;
+    _checked = true;
   }
 
   this.onReadByIds(ids, function(err, grid) {
-    if (checked) {
+    if (_checked) {
       for (var i = 0; i < grid.numRows(); ++i) {
         if (grid.row(i).missing("id")) {
-          callback(new Error("Unknown Rec: " + ids[i]));
+          _callback(new Error("Unknown Rec: " + ids[i]));
           return;
         }
       }
     }
-    callback(null, grid);
+    _callback(null, grid);
   });
 };
 
@@ -103,25 +107,27 @@ HProj.prototype.readByIds = function(ids, checked, callback) {
  * @return {HDict}
  */
 HProj.prototype.read = function(filter, checked, callback) {
-  if (typeof(checked)==='function') {
-    callback = checked;
-    checked = true;
+  var _checked = checked;
+  var _callback = callback;
+  if (typeof(_checked)==='function') {
+    _callback = _checked;
+    _checked = true;
   }
 
   this.readAll(filter, 1, function(err, grid) {
     if (err) {
-      callback(err);
+      _callback(err);
       return;
     }
     if (grid.numRows() > 0) {
-      callback(null, grid.row(0));
+      _callback(null, grid.row(0));
       return;
     }
-    if (checked) {
-      callback(new Error("Unknown Rec: " + filter));
+    if (_checked) {
+      _callback(new Error("Unknown Rec: " + filter));
       return;
     }
-    callback(null, null);
+    _callback(null, null);
   });
 };
 
@@ -134,10 +140,12 @@ HProj.prototype.read = function(filter, checked, callback) {
  * @return {HGrid}
  */
 HProj.prototype.readAll = function(filter, limit, callback) {
-  if (typeof(limit)==='function') {
-    callback = limit;
-    limit = 2147483647;
+  var _limit = limit;
+  var _callback = callback;
+  if (typeof(_limit)==='function') {
+    _callback = _limit;
+    _limit = 2147483647;
   }
 
-  this.onReadAll(filter, limit, callback);
+  this.onReadAll(filter, _limit, _callback);
 };

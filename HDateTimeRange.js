@@ -54,23 +54,26 @@ HDateTimeRange.prototype.toString = function() {
  * @return HDateTimeRange
  */
 HDateTimeRange.make = function(arg1, arg2, arg3) {
-  if (arg1 instanceof HDateTime) {
+  var _arg1 = arg1;
+  var _arg2 = arg2;
+  var _arg3 = arg3;
+  if (_arg1 instanceof HDateTime) {
     /** Make from two timestamps */
-    if (arg1.tz !== arg2.tz) throw new Error("arg1.tz != arg2.tz");
-    return new HDateTimeRange(arg1, arg2);
-  } else if (arg1 instanceof HDate) {
+    if (_arg1.tz !== _arg2.tz) throw new Error("_arg1.tz != _arg2.tz");
+    return new HDateTimeRange(_arg1, _arg2);
+  } else if (_arg1 instanceof HDate) {
     /** Make for inclusive dates within given timezone */
-    if (arg2 instanceof HTimeZone) {
-      arg3 = arg2;
-      arg2 = arg1;
+    if (_arg2 instanceof HTimeZone) {
+      _arg3 = _arg2;
+      _arg2 = _arg1;
     } // Make for single date within given timezone
-    return HDateTimeRange.make(HDate.midnight(arg1, arg3), HDate.midnight(arg2.plusDays(1), arg3));
+    return HDateTimeRange.make(HDate.midnight(_arg1, _arg3), HDate.midnight(_arg2.plusDays(1), _arg3));
   } else {
     /** Parse from string using the given timezone as context for date based ranges. */
     // handle keywords
-    var str = arg1.trim();
-    if (str === "today") return HDateTimeRange.make(HDate.today(), arg2);
-    if (str === "yesterday") return HDateTimeRange.make(HDate.today().minusDays(1), arg2);
+    var str = _arg1.trim();
+    if (str === "today") return HDateTimeRange.make(HDate.today(), _arg2);
+    if (str === "yesterday") return HDateTimeRange.make(HDate.today().minusDays(1), _arg2);
 
     // parse scalars
     var comma = str.indexOf(',');
@@ -85,12 +88,12 @@ HDateTimeRange.make = function(arg1, arg2, arg3) {
     // figure out what we parsed for start,end
     if (start instanceof HDate) {
       if (typeof(end) === 'undefined' || end === null)
-        return HDateTimeRange.make(start, arg2);
+        return HDateTimeRange.make(start, _arg2);
       if (end instanceof HDate)
-        return HDateTimeRange.make(start, end, arg2);
+        return HDateTimeRange.make(start, end, _arg2);
     } else if (start instanceof HDateTime) {
       if (typeof(end) === 'undefined' || end === null)
-        return HDateTimeRange.make(start, HDateTime.now(arg2));
+        return HDateTimeRange.make(start, HDateTime.now(_arg2));
       if (end instanceof HDateTime)
         return HDateTimeRange.make(start, end);
     }

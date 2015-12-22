@@ -94,17 +94,18 @@ Base64.prototype.decodeUTF8 = function(str) {
  * @return {string}
  */
 Base64.prototype.encodeBytes = function(bytes) {
-  if (typeof(bytes) === 'string' || bytes instanceof String) {
-    bytes = new Buffer(bytes);
+  var _bytes = bytes;
+  if (typeof(_bytes) === 'string' || _bytes instanceof String) {
+    _bytes = new Buffer(_bytes);
   }
-  var size = bytes.length;
+  var size = _bytes.length;
   var arr = "";
 
   var i = 0;
   while (i < size) {
-    var b0 = bytes[i++];
-    var b1 = (i < size) ? bytes[i++] : 0;
-    var b2 = (i < size) ? bytes[i++] : 0;
+    var b0 = _bytes[i++];
+    var b1 = (i < size) ? _bytes[i++] : 0;
+    var b2 = (i < size) ? _bytes[i++] : 0;
 
     var mask = 0x3F;
     arr += this.alphabet.charAt((b0 >> 2) & mask);

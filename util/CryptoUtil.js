@@ -25,16 +25,17 @@ module.exports = CryptoUtil;
  * @param {string} key
  */
 CryptoUtil.hmac = function hmac(algorithm, data, key) {
+  var _key = key;
   // get digest algorithm
   var md = crypto.createHash(algorithm);
   var blockSize = 64;
 
   // key is greater than block size we hash it first
-  var keySize = key.length;
+  var keySize = _key.length;
   if (keySize > blockSize) {
-    md.update(key, 0, keySize);
-    key = md.digest();
-    keySize = key.length;
+    md.update(_key, 0, keySize);
+    _key = md.digest();
+    keySize = _key.length;
     md = crypto.createHash("sha1");
   }
 
@@ -47,7 +48,7 @@ CryptoUtil.hmac = function hmac(algorithm, data, key) {
 
   // inner digest: H(K XOR ipad, text)
   for (i = 0; i < blockSize; ++i) {
-    if (i < keySize) md.update(String.fromCharCode(HVal.cc(key[i]) ^ 0x36));
+    if (i < keySize) md.update(String.fromCharCode(HVal.cc(_key[i]) ^ 0x36));
     else md.update(String.fromCharCode(0x36));
   }
   md.update(data, 0, data.length);
@@ -56,7 +57,7 @@ CryptoUtil.hmac = function hmac(algorithm, data, key) {
   // outer digest: H(K XOR opad, innerDigest)
   md = crypto.createHash("sha1");
   for (i = 0; i < blockSize; ++i) {
-    if (i < keySize) md.update(String.fromCharCode(HVal.cc(key[i]) ^ 0x5C));
+    if (i < keySize) md.update(String.fromCharCode(HVal.cc(_key[i]) ^ 0x5C));
     else md.update(String.fromCharCode(0x5C));
   }
   md.update(innerDigest);

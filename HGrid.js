@@ -114,10 +114,11 @@ HGrid.prototype.numCols = function() {
 HGrid.prototype.col = function(name, checked) {
   // Get a column by its index
   if (typeof(name) === 'number') return this.cols[name];
-  if (typeof(checked) === 'undefined') checked = true;
+  var _checked = checked;
+  if (typeof(_checked) === 'undefined') _checked = true;
   var col = this.colsByName[name];
   if (typeof(col) !== 'undefined' && col !== null) return col;
-  if (checked) throw new Error(name);
+  if (_checked) throw new Error(name);
   return null;
 };
 
@@ -145,8 +146,9 @@ HGrid.prototype.iterator = function() {
 
 /** Debug dump - this is Zinc right now. */
 HGrid.prototype.dump = function(out) {
-  if (typeof(out) === 'undefined') out = console;
+  var _out = out;
+  if (typeof(_out) === 'undefined') _out = console;
   HZincWriter.gridToString(this, function(err, str) {
-    out.log(str);
+    _out.log(str);
   });
 };

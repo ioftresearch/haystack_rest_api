@@ -385,11 +385,13 @@ HClient.prototype.authenticate = function(callback) {
  * @return {HClient}
  */
 HClient.open = function(uri, user, pass, format, callback) {
-  if (typeof(format)==='function') {
-    callback = format;
-    format = undefined;
+  var _format = format;
+  var _callback = callback;
+  if (typeof(_format)==='function') {
+    _callback = _format;
+    _format = undefined;
   }
-  new HClient(uri, user, pass, format).open(callback);
+  new HClient(uri, user, pass, _format).open(_callback);
 };
 
 /**
@@ -663,9 +665,11 @@ HClient.prototype.evaluate = function(expr, callback) {
  * @return {HGrid[]}
  */
 HClient.prototype.evalAll = function(req, checked, callback) {
-  if (typeof(checked)==='function') {
-    callback = checked;
-    checked = true;
+  var _checked = checked;
+  var _callback = callback;
+  if (typeof(_checked)==='function') {
+    callback = _checked;
+    _checked = true;
   }
 
   var self = this;
@@ -679,20 +683,20 @@ HClient.prototype.evalAll = function(req, checked, callback) {
 
   getWriter(self).gridToString(req, function(err, reqStr) {
     if (err) {
-      callback(err);
+      _callback(err);
     } else {
 
       postString(self, "evalAll", reqStr, function(err, str) {
         new getReader(self, str).readGrids(function (err, res) {
-          if (checked) {
+          if (_checked) {
             for (i = 0; i < res.length; ++i) {
               if (res[i].isErr()) {
-                callback(new Error(res[i]));
+                _callback(new Error(res[i]));
                 return;
               }
             }
           }
-          callback(null, res);
+          _callback(null, res);
         });
       });
     }
@@ -737,11 +741,12 @@ HClient.prototype.watches = function() {
  * @return {HWatch}
  */
 HClient.prototype.watch = function(id, checked) {
-  if (typeof(checked) === 'undefined') checked = true;
+  var _checked = checked;
+  if (typeof(_checked) === 'undefined') _checked = true;
 
   var w = this.uwatches[id];
   if (typeof(w) !== 'undefined' && w !== null) return w;
-  if (checked) throw new Error("Unknown Watch: " + id);
+  if (_checked) throw new Error("Unknown Watch: " + id);
   return null;
 };
 

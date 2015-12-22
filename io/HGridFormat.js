@@ -56,15 +56,16 @@ var HCsvWriter = require('./HCsvWriter'),
  * @return {HGridFormat}
  */
 HGridFormat.find = function(mime, checked) {	    // normalize mime type to strip parameters
-  var semicolon = mime.indexOf(';');
-  if (semicolon > 0) mime = mime.substring(0, semicolon).trim();
+  var _mime = mime;
+  var semicolon = _mime.indexOf(';');
+  if (semicolon > 0) _mime = _mime.substring(0, semicolon).trim();
 
   // lookup format
-  var format = registry[mime];
+  var format = registry[_mime];
   if (typeof(format) !== 'undefined' && format !== null) return format;
 
   // handle missing
-  if (checked) throw new Error("No format for mime type: " + mime);
+  if (checked) throw new Error("No format for mime type: " + _mime);
   return null;
 };
 

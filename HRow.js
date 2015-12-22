@@ -51,11 +51,12 @@ HRow.prototype.size = function() {
  * @return {HVal}
  */
 HRow.prototype.get = function(col, checked) {
-  if (typeof(checked) === 'undefined') checked = true;
+  var _checked = checked;
+  if (typeof(_checked) === 'undefined') _checked = true;
   if (col instanceof HCol) {
     var val = this.cells[col.index];
     if (typeof(val) !== 'undefined' && val !== null) return val;
-    if (checked) throw new Error(col.name());
+    if (_checked) throw new Error(col.name());
     return null;
   } else {
     // Get a cell by column name
@@ -65,7 +66,7 @@ HRow.prototype.get = function(col, checked) {
       var val = this.cells[col.index];
       if (typeof(val) !== 'undefined' && val !== null) return val;
     }
-    if (checked) throw new Error(name);
+    if (_checked) throw new Error(name);
     return null;
   }
 };

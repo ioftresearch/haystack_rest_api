@@ -18,15 +18,17 @@ var HGridReader = require('./HGridReader'),
  * @return {Error}
  */
 function err(msg, ex) {
-  if (msg instanceof Error) {
-    ex = msg;
-    msg = ex.message;
-  } else if (typeof(ex) === 'undefined' || ex === null) {
-    ex = new Error(msg);
+  var _msg = msg;
+  var _ex = ex;
+  if (_msg instanceof Error) {
+    _ex = _msg;
+    _msg = _ex.message;
+  } else if (typeof(_ex) === 'undefined' || _ex === null) {
+    _ex = new Error(_msg);
   }
 
-  ex.message = msg;
-  return ex;
+  _ex.message = _msg;
+  return _ex;
 }
 
 function consume(self) {
@@ -125,23 +127,23 @@ charTypes[HVal.cc('+')] = TZ;
 
 function isDigit(c) {
   if (c===null) return false;
-  c = HVal.cc(c);
-  return c > 0 && c < 128 && (charTypes[c] & DIGIT) !== 0;
+  var _c = HVal.cc(c);
+  return _c > 0 && _c < 128 && (charTypes[_c] & DIGIT) !== 0;
 }
 function isAlpha(c) {
   if (c===null) return false;
-  c = HVal.cc(c);
-  return c > 0 && c < 128 && (charTypes[c] & ALPHA) !== 0;
+  var _c = HVal.cc(c);
+  return _c > 0 && _c < 128 && (charTypes[_c] & ALPHA) !== 0;
 }
 function isUnit(c) {
   if (c===null) return false;
-  c = HVal.cc(c);
-  return c > 0 && (c >= 128 || (charTypes[c] & UNIT) !== 0);
+  var _c = HVal.cc(c);
+  return _c > 0 && (_c >= 128 || (charTypes[_c] & UNIT) !== 0);
 }
 function isTz(c) {
   if (c===null) return false;
-  c = HVal.cc(c);
-  return c > 0 && c < 128 && (charTypes[c] & TZ) !== 0;
+  var _c = HVal.cc(c);
+  return _c > 0 && _c < 128 && (charTypes[_c] & TZ) !== 0;
 }
 function isIdStart(c) {
   if (c===null) return false;
@@ -150,8 +152,8 @@ function isIdStart(c) {
 }
 function isId(c) {
   if (c===null) return false;
-  c = HVal.cc(c);
-  return c > 0 && c < 128 && (charTypes[c] & ID) !== 0;
+  var _c = HVal.cc(c);
+  return _c > 0 && _c < 128 && (charTypes[_c] & ID) !== 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -159,13 +161,14 @@ function isId(c) {
 //////////////////////////////////////////////////////////////////////////
 
 function errChar(self, msg) { // String
-  if (done(self.cur)) msg += " (end of stream)";
+  var _msg = msg;
+  if (done(self.cur)) _msg += " (end of stream)";
   else {
-    msg += " (char=0x" + HVal.cc(self.cur).toString(16);
-    if (self.cur >= ' ') msg += " '" + self.cur + "'";
-    msg += ")";
+    _msg += " (char=0x" + HVal.cc(self.cur).toString(16);
+    if (self.cur >= ' ') _msg += " '" + self.cur + "'";
+    _msg += ")";
   }
-  return err(msg, null);
+  return err(_msg, null);
 }
 
 function skipSpace(self) {
@@ -286,13 +289,7 @@ function readNumVal(self) {
   var time = null;
   var hour = -1;
   if (self.cur === '-') {
-    var year;
-    try {
-      year = parseInt(s);
-    }
-    catch (e) {
-      throw err("Invalid year for date value: " + s);
-    }
+    var year = _parseInt(s, "Invalid year for date value: ");
     consume(self); // dash
     var month = readTwoDigits(self, "Invalid digit for month in date value");
     if (self.cur !== '-') throw errChar(self, "Expected '-' for date value");
@@ -313,12 +310,7 @@ function readNumVal(self) {
     // hour (may have been parsed already in date time)
     if (hour < 0) {
       if (s.length !== 2) throw err("Hour must be two digits for time value: " + s);
-      try {
-        hour = parseInt(s);
-      }
-      catch (e) {
-        throw err("Invalid hour for time value: " + s);
-      }
+      hour = _parseInt(s, "Invalid hour for time value: ");
     }
     consume(self); // colon
     var min = readTwoDigits(self, "Invalid digit for minute in time value");
@@ -410,6 +402,14 @@ function readNumVal(self) {
   return HNum.make(val, unit);
 }
 
+function _parseInt(val, errMsg) {
+  try {
+    return parseInt(val);
+  }
+  catch (e) {
+    throw err(errMsg + s);
+  }
+}
 /**
  * @memberof HZincReader
  * @return {int}
@@ -424,10 +424,10 @@ function readTimeMs() {
  * @return {int}
  */
 function toNibble(c) {
-  c = HVal.cc(c);
-  if (HVal.cc('0') <= c && c <= HVal.cc('9')) return c - HVal.cc('0');
-  if (HVal.cc('a') <= c && c <= HVal.cc('f')) return c - HVal.cc('a') + 10;
-  if (HVal.cc('A') <= c && c <= HVal.cc('F')) return c - HVal.cc('A') + 10;
+  var _c = HVal.cc(c);
+  if (HVal.cc('0') <= _c && _c <= HVal.cc('9')) return _c - HVal.cc('0');
+  if (HVal.cc('a') <= _c && _c <= HVal.cc('f')) return _c - HVal.cc('a') + 10;
+  if (HVal.cc('A') <= _c && _c <= HVal.cc('F')) return _c - HVal.cc('A') + 10;
   throw errChar(self, "Invalid hex char");
 }
 

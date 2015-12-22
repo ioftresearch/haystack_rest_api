@@ -282,9 +282,9 @@ HServer.prototype.onNavReadByUri = function(uri, callback) {
  * @return HWatch
  */
 HServer.prototype.watchOpen = function(dis, lease) {
-  dis = dis.trim();
-  if (dis.length === 0) throw new Error("dis is empty");
-  return this.onWatchOpen(dis, lease);
+  var _dis = dis.trim();
+  if (_dis.length === 0) throw new Error("dis is empty");
+  return this.onWatchOpen(_dis, lease);
 };
 
 /**

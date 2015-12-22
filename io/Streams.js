@@ -20,11 +20,11 @@ inherits(ReadableStream, Stream.Readable);
 
 ReadableStream.prototype.read = function (n) {
   var chunk;
-  n = (n == null || n === -1) ? undefined : n;
-  chunk = this._data.slice(0, n);
+  var _n = (n == null || n === -1) ? undefined : n;
+  chunk = this._data.slice(0, _n);
 
-  this._data = this._data.slice(n);
-  if (n >= this._data.length || n === -1) this.emit('end');
+  this._data = this._data.slice(_n);
+  if (_n >= this._data.length || _n === -1) this.emit('end');
   return chunk;
 };
 ReadableStream.prototype.pipe = function (dest) {

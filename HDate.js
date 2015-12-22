@@ -98,7 +98,7 @@ HDate.prototype.plusDays = function(numDays) {
   var year = this.year;
   var month = this.month;
   var day = this.day;
-  for (; numDays > 0; --numDays) {
+  for (var i=0; i<numDays; i++) {
     day++;
     if (day > HDate.daysInMonth(year, month)) {
       day = 1;
@@ -124,7 +124,7 @@ HDate.prototype.minusDays = function(numDays) {
   var year = this.year;
   var month = this.month;
   var day = this.day;
-  for (; numDays > 0; --numDays) {
+  for (var i=0; i<numDays; i++) {
     day--;
     if (day <= 0) {
       month--;

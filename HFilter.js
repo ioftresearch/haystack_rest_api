@@ -50,11 +50,12 @@ HFilter.prototype.toStr = function(dict, pather) {
  * @return {HFilter}
  */
 HFilter.make = function(str, checked) {
-  if (typeof(checked) === 'undefined') checked = true;
+  var _checked = checked;
+  if (typeof(_checked) === 'undefined') _checked = true;
   try {
     return new HZincReader(str).readFilter();
   } catch (err) {
-    if (!checked) return null;
+    if (!_checked) return null;
     throw err;
   }
 };
@@ -357,21 +358,22 @@ HFilter.PathFilter.prototype.include = function(dict, pather, callback) {
   });
 };
 function _include(val, path, nt, pather, count, callback) {
+  var _val = val;
   if (count<path.size()) {
-    if (!(val instanceof HRef)) {
+    if (!(_val instanceof HRef)) {
       callback();
       return;
     }
-    pather.find(val.val, function(err, nt) {
+    pather.find(_val.val, function(err, nt) {
       if (typeof(nt) === 'undefined' || nt === null) {
         callback()
         return;
       }
-      val = nt.get(path.get(count), false);
-      _include(val, path, nt, pather, ++count, callback);
+      _val = nt.get(path.get(count), false);
+      _include(_val, path, nt, pather, ++count, callback);
     });
   } else {
-    callback(null, val);
+    callback(null, _val);
   }
 }
 
