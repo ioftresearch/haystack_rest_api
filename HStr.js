@@ -19,6 +19,11 @@ var HVal = require('./HVal');
  * @param {string{ val
  */
 function HStr(val) {
+  // ensure singleton usage
+  if (val==="" && arguments.callee._emptySingletonInstance) return arguments.callee._emptySingletonInstance;
+
+  if (val==="") arguments.callee._emptySingletonInstance = this;
+
   this.val = val;
 }
 HStr.prototype = Object.create(HVal.prototype);

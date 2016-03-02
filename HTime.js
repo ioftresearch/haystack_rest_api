@@ -30,6 +30,11 @@ function HTime(hour, min, sec, ms) {
   this.sec = (typeof(sec) === 'undefined' ? 0 : sec);
   /** int - Fractional seconds in milliseconds 0-999 */
   this.ms = (typeof(ms) === 'undefined' ? 0 : ms);
+
+  // ensure singleton usage
+  if (hour==0 && min==0 && this.sec==0 && this.ms==0 && arguments.callee._midnightSingletonInstance) return arguments.callee._midnightSingletonInstance;
+
+  if (hour==0 && min==0 && this.sec==0 && this.ms==0) arguments.callee._midnightSingletonInstance = this;
 }
 HTime.prototype = Object.create(HVal.prototype);
 module.exports = HTime;

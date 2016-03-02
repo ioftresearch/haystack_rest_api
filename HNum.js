@@ -21,6 +21,18 @@ var HVal = require('./HVal');
  */
 function HNum(val, unit) {
   if (!HNum.isUnitName(unit)) throw new Error("Invalid unit name: " + unit);
+
+  // ensure singleton usage
+  if (val===0 && arguments.callee._zeroSingletonInstance) return arguments.callee._zeroSingletonInstance;
+  if (val===Number.POSITIVE_INFINITY && arguments.callee._infSingletonInstance) return arguments.callee._infSingletonInstance;
+  if (val===Number.NEGATIVE_INFINITY && arguments.callee._ninfSingletonInstance) return arguments.callee._ninfSingletonInstance;
+  if (isNaN(val) && arguments.callee._nanSingletonInstance) return arguments.callee._nanSingletonInstance;
+
+  if (val===0) arguments.callee._zeroSingletonInstance = this;
+  if (val===Number.POSITIVE_INFINITY) arguments.callee._infSingletonInstance = this;
+  if (val===Number.NEGATIVE_INFINITY) arguments.callee._ninfSingletonInstance = this;
+  if (isNaN(val)) arguments.callee._nanSingletonInstance = this;
+
   this.val = val;
   this.unit = unit;
 }

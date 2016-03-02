@@ -36,6 +36,7 @@ function verifyGridWrite(zinc, json) {
         _test();
       } catch (err) {
         console.log(err);
+          console.log(err.stack);
         callback();
       }
     });

@@ -20,6 +20,13 @@ var HVal = require('./HVal');
  * @param {boolean} val - Boolean value
  */
 function HBool(val) {
+  // ensure singleton usage
+  if (val && arguments.callee._trueSingletonInstance) return arguments.callee._trueSingletonInstance;
+  if (!val && arguments.callee._falseSingletonInstance) return arguments.callee._falseSingletonInstance;
+
+  if (val) arguments.callee._trueSingletonInstance = this;
+  else arguments.callee._falseSingletonInstance = this;
+
   this.val = val;
 }
 HBool.prototype = Object.create(HVal.prototype);

@@ -28,6 +28,7 @@ var HBin = require('../HBin'),
     HMarker = require('../HMarker'),
     HNum = require('../HNum'),
     HRef = require('../HRef'),
+    HRemove = require('../HRemove'),
     HStr = require('../HStr'),
     HTime = require('../HTime'),
     HTimeZone = require('../HTimeZone'),
@@ -76,6 +77,10 @@ ValTest.testBin = function() {
 };
 
 ValTest.testBool = function() {
+  // singleton
+  Test.verify(new HBool(true) === HBool.TRUE);
+  Test.verify(new HBool(false) === HBool.FALSE);
+
   // equality
   Test.verifyEq(HBool.TRUE, HBool.TRUE);
   Test.verifyNotEq(HBool.TRUE, HBool.FALSE);
@@ -355,6 +360,9 @@ ValTest.testDateTime = function() {
 };
 
 ValTest.testMarker = function() {
+  // singleton
+  Test.verify(new HMarker() === HMarker.VAL);
+
   // equality
   Test.verifyEq(HMarker.VAL, HMarker.VAL);
 
@@ -363,6 +371,20 @@ ValTest.testMarker = function() {
 
   // zinc
   verifyZinc(HMarker.VAL, "M");
+};
+
+ValTest.testRemove = function() {
+  // singleton
+  Test.verify(new HRemove() === HRemove.VAL);
+
+  // equality
+  Test.verifyEq(HRemove.VAL, HRemove.VAL);
+
+  // toString
+  Test.verifyEq(HRemove.VAL.toString(), "remove");
+
+  // zinc
+  verifyZinc(HRemove.VAL, "R");
 };
 
 function verifyMidnight(date, tzName, str) {
@@ -385,6 +407,12 @@ ValTest.testMidnight = function() {
 };
 
 ValTest.testNum = function() {
+  // singleton
+  Test.verify(new HNum(0) === HNum.ZERO);
+  Test.verify(new HNum(Number.POSITIVE_INFINITY) === HNum.POS_INF);
+  Test.verify(new HNum(Number.NEGATIVE_INFINITY) === HNum.NEG_INF);
+  Test.verify(new HNum(Number.NaN) === HNum.NaN);
+
   // equality
   Test.verifyEq(HNum.make(2), HNum.make(2.0, null));
   Test.verifyNotEq(HNum.make(2), HNum.make(2, "%"));
@@ -575,6 +603,9 @@ ValTest.testRef = function() {
 };
 
 ValTest.testStr = function() {
+  // singleton
+  Test.verify(new HStr("") === HStr.EMPTY);
+
   // equality
   Test.verifyEq(HStr.make("a"), HStr.make("a"));
   Test.verifyNotEq(HStr.make("a"), HStr.make("b"));
@@ -619,6 +650,11 @@ ValTest.testStr = function() {
 };
 
 ValTest.testTime = function() {
+  // singleton
+  Test.verify(new HTime(0, 0, 0, 0) === HTime.MIDNIGHT);
+  Test.verify(new HTime(0, 0, 0) === HTime.MIDNIGHT);
+  Test.verify(new HTime(0, 0) === HTime.MIDNIGHT);
+
   // equality
   Test.verifyEq(HTime.make(1, 2, 3, 4), HTime.make(1, 2, 3, 4));
   Test.verifyNotEq(HTime.make(1, 2, 3, 4), HTime.make(9, 2, 3, 4));
@@ -686,6 +722,9 @@ ValTest.testTz = function() {
 };
 
 ValTest.testUri = function() {
+  // singleton
+  Test.verify(new HUri("") === HUri.EMPTY);
+
   // equality
   Test.verifyEq(HUri.make("a"), HUri.make("a"));
   Test.verifyNotEq(HUri.make("a"), HUri.make("b"));

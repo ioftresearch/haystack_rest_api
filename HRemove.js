@@ -17,7 +17,11 @@ var HVal = require('./HVal');
  * @constructor
  * @extends {HVal}
  */
-function HRemove() {}
+function HRemove() {
+  // ensure singleton usage
+  if (arguments.callee._singletonInstance) return arguments.callee._singletonInstance;
+  arguments.callee._singletonInstance = this;
+}
 HRemove.prototype = Object.create(HVal.prototype);
 module.exports = HRemove;
 

@@ -17,7 +17,11 @@ var HVal = require('./HVal');
  * @constructor
  * @extends {HVal}
  */
-function HMarker() {}
+function HMarker() {
+  // ensure singleton usage
+  if (arguments.callee._singletonInstance) return arguments.callee._singletonInstance;
+  arguments.callee._singletonInstance = this;
+}
 HMarker.prototype = Object.create(HVal.prototype);
 module.exports = HMarker;
 
