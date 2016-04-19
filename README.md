@@ -17,7 +17,7 @@ app.js - standard HTTP (no Express)
         http = require('http'),
         url = require('url');
 
-    // get the database
+    // get the database - you will need to uncomment line #39 of index.js to use the TestDatabase
     var db = new hs.TestDatabase();
 
     var server = http.createServer(function (req, res) {
@@ -70,7 +70,7 @@ app.js - using Express
         url = require('url'),
         bodyParser = require('body-parser');
 
-    // get the database
+    // get the database - you will need to uncomment line #39 of index.js to use the TestDatabase
     var db = new hs.TestDatabase();
 
     var app = express();
