@@ -9,6 +9,7 @@
 //
 
 var http = require('http'),
+    https = require('https'),
     crypto = require('crypto'),
     HDictBuilder = require('../HDictBuilder'),
     HGrid = require('../HGrid'),
@@ -24,6 +25,21 @@ var http = require('http'),
     HZincWriter = require('../io/HZincWriter'),
     Base64 = require('../util/Base64'),
     CryptoUtil = require('../util/CryptoUtil');
+
+
+var rejectUnauth = true;
+HClient.setRejectUnauthorized = function(boolval){
+  if(boolval === true || boolval === false)
+    rejectUnauth = boolval;
+};
+
+HClient.getRejectUnauthorized = function(boolval){
+  return rejectUnauth;
+};
+
+//module.exports.setRejectUnauthorized = setRejectUnauthorized;
+//module.exports.rejectUnauth = rejectUnauth;
+
 
 /**
  * HClient manages a logical connection to a HTTP REST haystack server.
@@ -259,7 +275,24 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
   var baseUri = t.uri.substring(0, t.uri.indexOf('/', 9));
   var url = baseUri + authUri + "?" + t.user;
 
-  http.get(url, function(res) {
+  // parse url information to host, port and path
+  var info = t.parseUrl(url);
+  // post back nonce/digest to auth URI
+  var opts = {
+    host: info[0],
+    path: info[1],
+    port: info[2],
+    method: 'GET'
+  };
+
+  var httptype = http;
+  if(url.indexOf('https') === 0)
+  {
+    httptype = https;
+    opts.rejectUnauthorized = rejectUnauth;
+  }
+
+  httptype.get(opts, function(res) {
     var body = '';
     res.on('data', function(d) {
       body += d;
@@ -295,7 +328,15 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
           "Content-Type": "text/plain; charset=utf-8"
         }
       };
-      var req = http.request(opts, function(res) {
+
+      var httptype = http;
+      if(url.indexOf('https') === 0)
+      {
+        httptype = https;
+        opts.rejectUnauthorized = rejectUnauth;
+      }
+
+      var req = httptype.request(opts, function(res) {
         var body = '';
         res.on('data', function(d) {
           body += d;
@@ -346,7 +387,27 @@ HClient.prototype.authenticate = function(callback) {
   // make request to about to get headers
   var url = self.uri + "about";
 
-  http.get(url, function(res) {
+  // parse url information to host, port and path
+  var info = self.parseUrl(url);
+  // post back nonce/digest to auth URI
+  var opts = {
+    host: info[0],
+    path: info[1],
+    port: info[2],
+    method: 'POST',
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8"
+    }
+  };
+
+  var httptype = http;
+  if(url.indexOf('https') === 0)
+  {
+    httptype = https;
+    opts.rejectUnauthorized = rejectUnauth;
+  }
+
+  httptype.get(opts, function(res) {
     var folioAuthUri = res.headers["folio-auth-api-uri"];
     if (typeof(folioAuthUri) !== 'undefined' && folioAuthUri !== null) {
       self.authenticateFolio(self, res, callback);
@@ -546,7 +607,15 @@ function postString(t, op, data, callback) {
     method: 'POST',
     headers: headers
   };
-  var req = http.request(opts, function(res) {
+
+  var httptype = http;
+  if(url.indexOf('https') === 0)
+  {
+    httptype = https;
+    opts.rejectUnauthorized = rejectUnauth;
+  }
+
+  var req = httptype.request(opts, function(res) {
     var body = '';
     res.on('data', function(d) {
       body += d;
