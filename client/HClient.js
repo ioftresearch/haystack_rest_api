@@ -28,6 +28,10 @@ var http = require('http'),
 
 
 var rejectUnauth = true;
+
+/** Timeout for http call on pushing histories */
+var pushTimeout = 3000;
+
 HClient.setRejectUnauthorized = function(boolval){
   if(boolval === true || boolval === false)
     rejectUnauth = boolval;
@@ -584,6 +588,7 @@ HClient.prototype.checkSetCookie = function(resp) {
  */
 function postString(t, op, data, callback) {
   // setup the POST request
+  var pushTimeoutTriggered = false;
   var url = t.uri + op;
   var headers = {};
   headers.Connection = "Close";
@@ -626,13 +631,21 @@ function postString(t, op, data, callback) {
         callback(new Error("Call Http Error: " + res.statusCode));
         return;
       }
-
+      if (pushTimeoutTriggered) {
+        callback(new Error("Timeout for push reached"))
+      }
       // check for response cookie
       t.checkSetCookie(res);
 
       callback(null, body);
     });
   });
+  req.setTimeout(pushTimeout);
+  req.on('timeout', function() {
+    pushTimeoutTriggered = true;
+    req.abort();
+    req.end();
+  })
   req.on('error', function(e) {
     callback(new Error("Call Network Error: " + e.message));
   });
