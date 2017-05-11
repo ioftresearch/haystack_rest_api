@@ -660,6 +660,9 @@ function postString(t, op, data, callback) {
       callback(null, body);
     });
   });
+  req.on('error', function(e) {
+    callback(new Error("Call Network Error: " + e.message));
+  })
   // create timeouts, if they exist
   if (this.connectTimeout){
     var cTimeout = this.connectTimeout
