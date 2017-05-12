@@ -9,24 +9,24 @@
 //
 
 var http = require('http'),
-    https = require('https'),
-    crypto = require('crypto'),
-    HDictBuilder = require('../HDictBuilder'),
-    HGrid = require('../HGrid'),
-    HGridBuilder = require('../HGridBuilder'),
-    HNum = require('../HNum'),
-    HStr = require('../HStr'),
-    HProj = require('../HProj'),
-    HWatch = require('../HWatch'),
-    HVal = require('../HVal'),
-    HJsonReader = require('../io/HJsonReader'),
-    HJsonWriter = require('../io/HJsonWriter'),
-    HZincReader = require('../io/HZincReader'),
-    HZincWriter = require('../io/HZincWriter'),
-    Base64 = require('../util/Base64'),
-    CryptoUtil = require('../util/CryptoUtil');
+  https = require('https'),
+  crypto = require('crypto'),
+  HDictBuilder = require('../HDictBuilder'),
+  HGrid = require('../HGrid'),
+  HGridBuilder = require('../HGridBuilder'),
+  HNum = require('../HNum'),
+  HStr = require('../HStr'),
+  HProj = require('../HProj'),
+  HWatch = require('../HWatch'),
+  HVal = require('../HVal'),
+  HJsonReader = require('../io/HJsonReader'),
+  HJsonWriter = require('../io/HJsonWriter'),
+  HZincReader = require('../io/HZincReader'),
+  HZincWriter = require('../io/HZincWriter'),
+  Base64 = require('../util/Base64'),
+  CryptoUtil = require('../util/CryptoUtil');
 
-
+var postTimeout = 3000;
 var rejectUnauth = true;
 HClient.setRejectUnauthorized = function(boolval){
   if(boolval === true || boolval === false)
@@ -40,7 +40,6 @@ HClient.getRejectUnauthorized = function(boolval){
 //module.exports.setRejectUnauthorized = setRejectUnauthorized;
 //module.exports.rejectUnauth = rejectUnauth;
 
-
 /**
  * HClient manages a logical connection to a HTTP REST haystack server.
  * @see {@link http://project-haystack.org/doc/Rest|Project Haystack}
@@ -53,7 +52,7 @@ HClient.getRejectUnauthorized = function(boolval){
  * @param {string} pass
  * @param {string} format - ZINC or JSON (defaults to ZINC)
  */
-function HClient(uri, user, pass, format) {
+function HClient(uri, user, pass, format, connectTimeout, readTimeout) {
   // check uri
   if (!HVal.startsWith(uri, "http://") && !HVal.startsWith(uri, "https://"))
     throw new Error("Invalid uri format: " + uri);
@@ -75,9 +74,9 @@ function HClient(uri, user, pass, format) {
    This string always ends with slash. */
   this.uri = uri;
   /** Timeout in milliseconds for opening the HTTP socket */
-  this.connectTimeout = 60 * 1000;
+  if (connectTimeout) this.connectTimeout = connectTimeout;
   /** Timeout in milliseconds for reading from the HTTP socket */
-  this.readTimeout = 60 * 1000;
+  if (readTimeout) this.readTimeout = readTimeout;
 }
 HClient.prototype = Object.create(HProj.prototype);
 module.exports = HClient;
@@ -186,8 +185,8 @@ function Property(key, value) {
  */
 Property.prototype.toString = function() {
   return "[Property " +
-      "key:" + this.key + ", " +
-      "value:" + this.value + "]";
+    "key:" + this.key + ", " +
+    "value:" + this.value + "]";
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -208,8 +207,8 @@ HClient.prototype.authenticateBasic = function(t, resp, callback) {
   // to send back Basic Authorization on subsequent requests.
 
   t.authProperty = new Property(
-      "Authorization",
-      "Basic " + Base64.STANDARD.encode(t.user + ":" + t.pass));
+    "Authorization",
+    "Basic " + Base64.STANDARD.encode(t.user + ":" + t.pass));
 
   callback(null, t);
 }
@@ -291,7 +290,6 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
     httptype = https;
     opts.rejectUnauthorized = rejectUnauth;
   }
-
   httptype.get(opts, function(res) {
     var body = '';
     res.on('data', function(d) {
@@ -360,6 +358,27 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
           callback(null, t);
         });
       });
+      if (this.connectTimeout){
+        var cTimeout = this.connectTimeout
+        req.setTimeout(cTimeout);
+        req.on('timeout', function() {
+          req.abort();
+          req.end();
+          callback(new Error('Connection timeout of ' + cTimeout + 'ms reached'))
+        })
+      }
+      if (this.readTimeout) {
+        var rTimeout = this.readTimeout
+        req.on('socket', function(sock) {
+          sock.on('connect', function() {
+            setTimeout(function() {
+              req.abort();
+              req.end();
+              callback(new Error('Read timeout of ' + rTimeout + 'ms reached'))
+            }, rTimeout)
+          })
+        })
+      }
       req.on('error', function(e) {
         callback(e);
       });
@@ -445,14 +464,14 @@ HClient.prototype.authenticate = function(callback) {
  * @param {function} callback
  * @return {HClient}
  */
-HClient.open = function(uri, user, pass, format, callback) {
+HClient.open = function(uri, user, pass, format, callback, connectTimeout, readTimeout) {
   var _format = format;
   var _callback = callback;
   if (typeof(_format)==='function') {
     _callback = _format;
     _format = undefined;
   }
-  new HClient(uri, user, pass, _format).open(_callback);
+  new HClient(uri, user, pass, _format, connectTimeout, readTimeout).open(_callback);
 };
 
 /**
@@ -583,6 +602,8 @@ HClient.prototype.checkSetCookie = function(resp) {
  * @returns {string}
  */
 function postString(t, op, data, callback) {
+  var connectTimeoutError = false;
+  var readTimeoutError = false;
   // setup the POST request
   var url = t.uri + op;
   var headers = {};
@@ -626,6 +647,12 @@ function postString(t, op, data, callback) {
         callback(new Error("Call Http Error: " + res.statusCode));
         return;
       }
+      if (readTimeoutError) {
+        callback(new Error("Read timeout of " + HClient.readTimeout + " ms was hit!"))
+      }
+      if (connectTimeoutError) {
+        callback(new Error("Read timeout of " + HClient.connectTimeout + " ms was hit!"))
+      }
 
       // check for response cookie
       t.checkSetCookie(res);
@@ -635,7 +662,29 @@ function postString(t, op, data, callback) {
   });
   req.on('error', function(e) {
     callback(new Error("Call Network Error: " + e.message));
-  });
+  })
+  // create timeouts, if they exist
+  if (this.connectTimeout){
+    var cTimeout = this.connectTimeout
+    req.setTimeout(cTimeout);
+    req.on('timeout', function() {
+      req.abort();
+      req.end();
+      callback(new Error('Connection timeout of ' + cTimeout + 'ms reached'))
+    })
+  }
+  if (this.readTimeout) {
+    var rTimeout = this.readTimeout
+    req.on('socket', function(sock) {
+      sock.on('connect', function() {
+        setTimeout(function() {
+          req.abort();
+          req.end();
+          callback(new Error('Read timeout of ' + rTimeout + 'ms reached'))
+        }, rTimeout)
+      })
+    })
+  }
   // write the data
   req.write(data);
   req.end();
