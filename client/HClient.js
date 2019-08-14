@@ -612,7 +612,7 @@ function postString(t, op, data, callback) {
     headers["Content-Type"] = "application/json; charset=utf-8";
     headers["Accept"] = "application/json";
   } else {
-    headers["Content-Type"] = "text/plain; charset=utf-8";
+    headers["Content-Type"] = "text/zinc; charset=utf-8";
   }
   headers["Content-Length"] = Buffer.byteLength(data);
   if (t.authProperty !== null && typeof(t.authProperty)!=='undefined') headers[t.authProperty.key] = t.authProperty.value;
