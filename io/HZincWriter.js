@@ -9,9 +9,9 @@
 //
 
 var HGridWriter = require('./HGridWriter'),
-    HMarker = require('../HMarker'),
-    HGrid = require('../HGrid'),
-    Writer = require('./Streams').Writer;
+  HMarker = require('../HMarker'),
+  HGrid = require('../HGrid'),
+  Writer = require('./Streams').Writer;
 
 /**
  * HZincWriter is used to write grids in the Zinc format
@@ -62,7 +62,7 @@ function writeRow(self, grid, row) {
   for (var i = 0; i < grid.numCols(); ++i) {
     var val = row.get(grid.col(i), false);
     if (i > 0) self.out.write(',');
-    if (typeof(val) === 'undefined' || val === null) {
+    if (typeof (val) === 'undefined' || val === null) {
       if (i === 0) self.out.write('N');
     }
     else {
@@ -75,7 +75,7 @@ function writeRow(self, grid, row) {
  * Write a grid
  * @param {HGrid} grid
  */
-HZincWriter.prototype.writeGrid = function(grid, callback) {
+HZincWriter.prototype.writeGrid = function (grid, callback) {
   var cb = true;
   try {
     // meta
@@ -112,9 +112,9 @@ HZincWriter.prototype.writeGrid = function(grid, callback) {
  * @param {HGrid} grid
  * @return {string}
  */
-HZincWriter.gridToString = function(grid, callback) {
+HZincWriter.gridToString = function (grid, callback) {
   var out = new Writer();
-  new HZincWriter(out).writeGrid(grid, function(err) {
+  new HZincWriter(out).writeGrid(grid, function (err) {
     callback(err, out.toString());
   });
 };

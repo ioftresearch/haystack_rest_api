@@ -9,14 +9,14 @@
 //
 
 var HProj = require('../HProj'),
-    HDateTime = require('../HDateTime'),
-    HDateTimeRange = require('../HDateTimeRange'),
-    HDictBuilder = require('../HDictBuilder'),
-    HFilter = require('../HFilter'),
-    HGrid = require('../HGrid'),
-    HGridBuilder = require('../HGridBuilder'),
-    HRef = require('../HRef'),
-    HTimeZone = require('../HTimeZone');
+  HDateTime = require('../HDateTime'),
+  HDateTimeRange = require('../HDateTimeRange'),
+  HDictBuilder = require('../HDictBuilder'),
+  HFilter = require('../HFilter'),
+  HGrid = require('../HGrid'),
+  HGridBuilder = require('../HGridBuilder'),
+  HRef = require('../HRef'),
+  HTimeZone = require('../HTimeZone');
 
 /**
  * HServer is the interface between HServlet and a database of
@@ -42,7 +42,8 @@ module.exports = HServer;
  * @param {function} callback
  * @return {HOp[]}
  */
-HServer.prototype.ops = function(callback) {
+HServer.prototype.ops = function (callback) {
+  console.log("CALLBACK OPS")
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -55,17 +56,17 @@ HServer.prototype.ops = function(callback) {
  * @param {function} callback
  * @return {HOp}
  */
-HServer.prototype.op = function(name, checked, callback) {
+HServer.prototype.op = function (name, checked, callback) {
   var self = this;
   // lazily build lookup map
-  if (typeof(self.opsByName) === 'undefined' || self.opsByName === null) {
+  if (typeof (self.opsByName) === 'undefined' || self.opsByName === null) {
     var map = {};
-    self.ops(function(err, ops) {
+    self.ops(function (err, ops) {
       if (err) callback(err);
       else {
         for (var i = 0; i < ops.length; ++i) {
           var op = ops[i];
-          if (typeof(map[op.name()]) !== 'undefined' && map[op.name()] !== null)
+          if (typeof (map[op.name()]) !== 'undefined' && map[op.name()] !== null)
             console.log("WARN: duplicate HOp name: " + op.name());
           map[op.name()] = op;
         }
@@ -80,7 +81,7 @@ HServer.prototype.op = function(name, checked, callback) {
 function _op(self, name, checked, callback) {
   // lookup
   var op = self.opsByName[name];
-  if (typeof(op) !== 'undefined' && op !== null)
+  if (typeof (op) !== 'undefined' && op !== null)
     callback(null, op);
   else if (checked)
     callback(new Error("Unknown Name: " + name));
@@ -97,18 +98,18 @@ function _op(self, name, checked, callback) {
  * @param {function} callback
  * @return {HDict}
  */
-HServer.prototype.about = function(callback) {
+HServer.prototype.about = function (callback) {
   var self = this;
-  self.onAbout(function(err, dict) {
+  self.onAbout(function (err, dict) {
     if (err) callback(err);
     else
       callback(null, new HDictBuilder()
-          .add(dict)
-          .add("haystackVersion", "2.0")
-          .add("serverTime", HDateTime.now())
-          .add("serverBootTime", self.bootTime)
-          .add("tz", HTimeZone.DEFAULT.name)
-          .toDict());
+        .add(dict)
+        .add("haystackVersion", "2.0")
+        .add("serverTime", HDateTime.now())
+        .add("serverBootTime", self.bootTime)
+        .add("tz", HTimeZone.DEFAULT.name)
+        .toDict());
   });
 };
 
@@ -126,7 +127,7 @@ HServer.prototype.about = function(callback) {
  * @param {function} callback
  * @return {HDict}
  */
-HServer.prototype.onAbout = function(callback) {
+HServer.prototype.onAbout = function (callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -140,14 +141,14 @@ HServer.prototype.onAbout = function(callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HServer.prototype.onReadByIds = function(ids, callback) {
+HServer.prototype.onReadByIds = function (ids, callback) {
   _readById(this, [], ids, callback);
 };
 function _readById(self, recs, ids, callback) {
-  if (recs.length>=ids.length) {
+  if (recs.length >= ids.length) {
     callback(null, HGridBuilder.dictsToGrid(recs));
   } else {
-    self.onReadById(ids[recs.length], function(err, rec) {
+    self.onReadById(ids[recs.length], function (err, rec) {
       recs[recs.length] = rec;
       _readById(self, recs, ids, callback);
     })
@@ -161,34 +162,35 @@ function _readById(self, recs, ids, callback) {
  * @param {function} callback
  * @return HGrid
  */
-HServer.prototype.onReadAll = function(filter, limit, callback) {
+HServer.prototype.onReadAll = function (filter, limit, callback) {
+  console.log("ON READ ALL")
   var self = this;
-  self.iterator(function(err, it) {
+  self.iterator(function (err, it) {
     if (err) {
       callback(err);
     } else {
-        if (!it.hasNext()) {
-          callback(null, HGrid.EMPTY);
-        } else {
-          _iterate(self, it, limit, HFilter.make(filter), [], function(err, acc) {
-            if (err)
-              callback(HGridBuilder.errToGrid(err));
-            else
-              callback(null, HGridBuilder.dictsToGrid(acc));
-          })
-        }
+      if (!it.hasNext()) {
+        callback(null, HGrid.EMPTY);
+      } else {
+        _iterate(self, it, limit, HFilter.make(filter), [], function (err, acc) {
+          if (err)
+            callback(HGridBuilder.errToGrid(err));
+          else
+            callback(null, HGridBuilder.dictsToGrid(acc));
+        })
+      }
     }
   });
 };
 function _iterate(self, it, limit, f, acc, callback) {
   var rec = it.next();
-  f.include(rec, self.filterPather(), function(inc) {
+  f.include(rec, self.filterPather(), function (inc) {
     try {
       if (inc)
         acc[acc.length] = rec;
 
       if (acc.length < limit && it.hasNext()) {
-        setImmediate(function() {
+        setImmediate(function () {
           _iterate(self, it, limit, f, acc, callback);
         });
       } else {
@@ -199,10 +201,10 @@ function _iterate(self, it, limit, f, acc, callback) {
     }
   });
 }
-HServer.prototype.filterPather = function() {
+HServer.prototype.filterPather = function () {
   var self = this;
   return {
-    find: function(id, callback) {
+    find: function (id, callback) {
       self.readById(HRef.make(id), callback);
     }
   };
@@ -215,7 +217,7 @@ HServer.prototype.filterPather = function() {
  * @param {function} callback
  * @return {Iterator}
  */
-HServer.prototype.iterator = function(callback) {
+HServer.prototype.iterator = function (callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -229,8 +231,8 @@ HServer.prototype.iterator = function(callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HServer.prototype.nav = function(navId, callback) {
-  this.onNav(navId, callback);
+HServer.prototype.nav = function (navId, type, callback) {
+  this.onNav(navId, type, callback);
 };
 
 /**
@@ -241,7 +243,7 @@ HServer.prototype.nav = function(navId, callback) {
  * @param {function} callback
  * @return HGrid
  */
-HServer.prototype.onNav = function(navId, callback) {
+HServer.prototype.onNav = function (navId, callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -254,11 +256,11 @@ HServer.prototype.onNav = function(navId, callback) {
  * @param {function} callback
  * @return HDict
  */
-HServer.prototype.navReadByUri = function(uri, checked, callback) {
-  this.onNavReadByUri(uri, function(err, rec) {
+HServer.prototype.navReadByUri = function (uri, checked, callback) {
+  this.onNavReadByUri(uri, function (err, rec) {
     if (err) callback(err);
-    else if (typeof(rec) !== 'undefined' && rec !== null) callback(null, rec);
-    else if (checked) callback( new Error("Unknown Rec: " + uri.toString()));
+    else if (typeof (rec) !== 'undefined' && rec !== null) callback(null, rec);
+    else if (checked) callback(new Error("Unknown Rec: " + uri.toString()));
   });
 };
 
@@ -269,7 +271,7 @@ HServer.prototype.navReadByUri = function(uri, checked, callback) {
  * @param {function} callback
  * @return {HDict}
  */
-HServer.prototype.onNavReadByUri = function(uri, callback) {
+HServer.prototype.onNavReadByUri = function (uri, callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -281,7 +283,7 @@ HServer.prototype.onNavReadByUri = function(uri, callback) {
  * @param {HNum} lease
  * @return HWatch
  */
-HServer.prototype.watchOpen = function(dis, lease) {
+HServer.prototype.watchOpen = function (dis, lease) {
   var _dis = dis.trim();
   if (_dis.length === 0) throw new Error("dis is empty");
   return this.onWatchOpen(_dis, lease);
@@ -291,7 +293,7 @@ HServer.prototype.watchOpen = function(dis, lease) {
  * List the open watches.
  * @return {HWatch[]}
  */
-HServer.prototype.watches = function() {
+HServer.prototype.watches = function () {
   return this.onWatches();
 };
 
@@ -302,9 +304,9 @@ HServer.prototype.watches = function() {
  * @param {boolean} checked
  * @return HWatch
  */
-HServer.prototype.watch = function(id, checked) {
+HServer.prototype.watch = function (id, checked) {
   var w = this.onWatch(id);
-  if (typeof(w) !== 'undefined' && w !== null) return w;
+  if (typeof (w) !== 'undefined' && w !== null) return w;
   if (checked) throw new Error("Unknown Watch: " + id);
   return null;
 };
@@ -319,7 +321,7 @@ HServer.prototype.watch = function(id, checked) {
  * @param {HNum} lease
  * @return {HWatch}
  */
-HServer.prototype.onWatchOpen = function(dis, lease) {
+HServer.prototype.onWatchOpen = function (dis, lease) {
   throw new Error('must be implemented by subclass!');
 };
 
@@ -328,7 +330,7 @@ HServer.prototype.onWatchOpen = function(dis, lease) {
  * @abstract
  * @return {HWatch[]}
  */
-HServer.prototype.onWatches = function() {
+HServer.prototype.onWatches = function () {
   throw new Error('must be implemented by subclass!');
 };
 
@@ -338,7 +340,7 @@ HServer.prototype.onWatches = function() {
  * @param {string} id
  * @return {HWatch}
  */
-HServer.prototype.onWatch = function(id) {
+HServer.prototype.onWatch = function (id) {
   throw new Error('must be implemented by subclass!');
 };
 
@@ -357,10 +359,10 @@ HServer.prototype.onWatch = function(id) {
  * @param {function} callback
  * @return HGrid
  */
-HServer.prototype.pointWriteArray = function(id, callback) {
+HServer.prototype.pointWriteArray = function (id, callback) {
   var self = this;
   // lookup entity
-  self.readById(id, function(err, rec) {
+  self.readById(id, function (err, rec) {
     if (err) callback(err);
     else {
       // check that entity has "writable" tag
@@ -380,14 +382,14 @@ HServer.prototype.pointWriteArray = function(id, callback) {
  * @param {HDict} opts
  * @param {function} callback
  */
-HServer.prototype.pointWrite = function(id, level, val, who, dur, opts, callback) {
+HServer.prototype.pointWrite = function (id, level, val, who, dur, opts, callback) {
   var self = this;
   // argument checks
   if (level < 1 || level > 17) callback(new Error("Invalid level 1-17: " + level));
-  else if (typeof(who) === 'undefined' || who === null) callback(new Error("who is null"));
+  else if (typeof (who) === 'undefined' || who === null) callback(new Error("who is null"));
   else {
     // lookup entity
-    self.readById(id, function(err, rec) {
+    self.readById(id, function (err, rec) {
       if (err) callback(err);
       else {
         // check that entity has "writable" tag
@@ -404,7 +406,7 @@ HServer.prototype.pointWrite = function(id, level, val, who, dur, opts, callback
  * @param {function} callback
  * @return {HGrid}
  */
-HServer.prototype.onPointWriteArray = function(rec, callback) {
+HServer.prototype.onPointWriteArray = function (rec, callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -419,7 +421,7 @@ HServer.prototype.onPointWriteArray = function(rec, callback) {
  * @param {HDict} opts
  * @param {function} callback
  */
-HServer.prototype.onPointWrite = function(id, level, val, who, dur, opts, callback) {
+HServer.prototype.onPointWrite = function (id, level, val, who, dur, opts, callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -440,10 +442,10 @@ HServer.prototype.onPointWrite = function(id, level, val, who, dur, opts, callba
  * @param {function} callback
  * @return HGrid
  */
-HServer.prototype.hisRead = function(id, range, callback) {
+HServer.prototype.hisRead = function (id, range, callback) {
   // lookup entity
   var self = this;
-  self.readById(id, function(err, rec) {
+  self.readById(id, function (err, rec) {
     if (err) callback(err)
     else {
       // check that entity has "his" tag
@@ -452,6 +454,7 @@ HServer.prototype.hisRead = function(id, range, callback) {
         // lookup "tz" on entity
         var tz = null;
         if (rec.has("tz")) tz = HTimeZone.make(rec.getStr("tz"), false);
+        console.log("TIMEZONE", tz)
         if (tz === null) callback(new Error("Rec missing or invalid 'tz' tag: " + rec.dis()));
         else {
           // check or parse date range
@@ -471,7 +474,7 @@ HServer.prototype.hisRead = function(id, range, callback) {
           if (!r.start.tz.equals(tz)) callback(new Error("range.tz != rec: " + r.start.tz + " != " + tz));
           else {
             // route to subclass
-            self.onHisRead(rec, r, function(err, items) {
+            self.onHisRead(rec, r, function (err, items) {
               if (err) callback(err)
               else {
                 // check items
@@ -488,10 +491,10 @@ HServer.prototype.hisRead = function(id, range, callback) {
 
                 // build and return result grid
                 var meta = new HDictBuilder()
-                    .add("id", id)
-                    .add("hisStart", r.start)
-                    .add("hisEnd", r.end)
-                    .toDict();
+                  .add("id", id)
+                  .add("hisStart", r.start)
+                  .add("hisEnd", r.end)
+                  .toDict();
                 callback(null, HGridBuilder.hisItemsToGrid(meta, items));
               }
             });
@@ -511,7 +514,7 @@ HServer.prototype.hisRead = function(id, range, callback) {
  * @param {function} callback
  * @return {HHisItem[]}
  */
-HServer.prototype.onHisRead = function(rec, range, callback) {
+HServer.prototype.onHisRead = function (rec, range, callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -525,35 +528,50 @@ HServer.prototype.onHisRead = function(rec, range, callback) {
  * @param {HHisItem[]}
  * @param {function} callback
  */
-HServer.prototype.hisWrite = function(id, items, callback) {
+HServer.prototype.hisWrite = function (id, items, callback) {
   // lookup entity
   var self = this;
-  self.readById(id, function(err, rec) {
-    if (err) callback(err);
+  console.log("WRITe")
+  console.log(id)
+  console.log(items)
+  self.readById(id, function (err, rec) {
+    console.log("read by id")
+    if (err) {
+      console.log("RROR")
+      callback(err);
+    }
     else {
       // check that entity has "his" tag
       if (rec.missing("his")) callback(new Error("Entity missing 'his' tag: " + rec.dis()));
       else {
+        console.log("his")
         // lookup "tz" on entity
         var tz = null;
         if (rec.has("tz")) tz = HTimeZone.make(rec.getStr("tz"), false);
-        if (typeof(tz) === 'undefined' || tz === null) callback(new Error("Rec missing or invalid 'tz' tag: " + rec.dis()));
+        console.log(rec.getStr("tz"))
+        if (typeof (tz) === 'undefined' || tz === null) callback(new Error("Rec missing or invalid 'tz' tag: " + rec.dis()));
         else {
+          console.log("TZ")
+          console.log(tz)
           // check tz of items
           if (items.length === 0) return;
+          console.log("has items")
           for (var i = 0; i < items.length; ++i) {
             if (!items[i].ts.tz.equals(tz)) {
               callback(new Error("item.tz != rec.tz: " + items[i].ts.tz + " != " + tz));
               return;
             }
           }
-
           // route to subclass
+          console.log("SELF")
           self.onHisWrite(rec, items, callback);
+          console.log("CALL")
         }
       }
     }
-  });
+  }
+  );
+  console.log("TERMINA")
 };
 
 /**
@@ -564,7 +582,7 @@ HServer.prototype.hisWrite = function(id, items, callback) {
  * @param {function} callback
  * @return {HHisItem[]}
  */
-HServer.prototype.onHisRead = function(rec, items, callback) {
+HServer.prototype.onHisRead = function (rec, items, callback) {
   callback(new Error('must be implemented by subclass!'));
 };
 
@@ -580,10 +598,10 @@ HServer.prototype.onHisRead = function(rec, items, callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HServer.prototype.invokeAction = function(id, action, args, callback) {
+HServer.prototype.invokeAction = function (id, action, args, callback) {
   // lookup entity
   var self = this;
-  self.readById(id, function(err, rec) {
+  self.readById(id, function (err, rec) {
     if (err) callback(err)
     // route to subclass
     else self.onInvokeAction(rec, action, args, callback);
@@ -599,6 +617,6 @@ HServer.prototype.invokeAction = function(id, action, args, callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HServer.prototype.onHisRead = function(rec, items, callback) {
+HServer.prototype.onHisRead = function (rec, items, callback) {
   callback(new Error('must be implemented by subclass!'));
 };

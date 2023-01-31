@@ -15,21 +15,21 @@
  *
  * @constructor
  */
-function HDict() {}
+function HDict() { }
 module.exports = HDict;
 
 var HMarker = require('./HMarker'),
-    HBool = require('./HBool'),
-    HNum = require('./HNum'),
-    HRef = require('./HRef'),
-    HStr = require('./HStr'),
-    HVal = require('./HVal');
+  HBool = require('./HBool'),
+  HNum = require('./HNum'),
+  HRef = require('./HRef'),
+  HStr = require('./HStr'),
+  HVal = require('./HVal');
 
 /**
  * Return if size is zero
  * @return {boolean}
  */
-HDict.prototype.isEmpty = function() {
+HDict.prototype.isEmpty = function () {
   return this.size() === 0;
 };
 
@@ -38,9 +38,9 @@ HDict.prototype.isEmpty = function() {
  * @param {string} name
  * @return {boolean}
  */
-HDict.prototype.has = function(name) {
+HDict.prototype.has = function (name) {
   var t = this.get(name, false);
-  return typeof(t) !== 'undefined' && t !== null;
+  return typeof (t) !== 'undefined' && t !== null;
 };
 
 /**
@@ -48,16 +48,16 @@ HDict.prototype.has = function(name) {
  * @param {string} name
  * @return {boolean}
  */
-HDict.prototype.missing = function(name) {
+HDict.prototype.missing = function (name) {
   var t = this.get(name, false);
-  return typeof(t) === 'undefined' || t === null;
+  return typeof (t) === 'undefined' || t === null;
 };
 
 /**
  * Get the "id" tag as HRef.
  * @return {HRef}
  */
-HDict.prototype.id = function() {
+HDict.prototype.id = function () {
   return this.getRef("id");
 };
 
@@ -67,12 +67,12 @@ HDict.prototype.id = function() {
  *   - id tag
  * @return {string}
  */
-HDict.prototype.dis = function() {
+HDict.prototype.dis = function () {
   var v = this.get("dis", false);
   if (v instanceof HStr) return v.val;
 
   v = this.get("id", false);
-  if (typeof(v) !== 'undefined' && v !== null) return v.dis();
+  if (typeof (v) !== 'undefined' && v !== null) return v.dis();
 
   return "????";
 };
@@ -82,7 +82,7 @@ HDict.prototype.dis = function() {
  * @abstract
  * @return {int}
  */
-HDict.prototype.size = function() {
+HDict.prototype.size = function () {
   throw new Error('must be implemented by subclass!');
 };
 /**
@@ -92,7 +92,7 @@ HDict.prototype.size = function() {
  * @param {boolean} checked
  * @return {HVa}
  */
-HDict.prototype.get = function(name, checked) {
+HDict.prototype.get = function (name, checked) {
   throw new Error('must be implemented by subclass!');
 };
 /**
@@ -100,7 +100,7 @@ HDict.prototype.get = function(name, checked) {
  * @abstract
  * @return {Iterator}
  */
-HDict.prototype.iterator = function() {
+HDict.prototype.iterator = function () {
   throw new Error('must be implemented by subclass!');
 };
 
@@ -113,7 +113,7 @@ HDict.prototype.iterator = function() {
  * @param {string} name
  * @return {HBool}
  */
-HDict.prototype.getBool = function(name) {
+HDict.prototype.getBool = function (name) {
   var v = this.get(name);
   if (!(v instanceof HBool)) throw Error("ClassCastExcetion: " + name);
   return v.val;
@@ -124,7 +124,7 @@ HDict.prototype.getBool = function(name) {
  * @param {string} name
  * @return {HStr}
  */
-HDict.prototype.getStr = function(name) {
+HDict.prototype.getStr = function (name) {
   var v = this.get(name);
   if (!(v instanceof HStr)) throw Error("ClassCastExcetion: " + name);
   return v.val;
@@ -135,7 +135,7 @@ HDict.prototype.getStr = function(name) {
  * @param {string} name
  * @return {HRef}
  */
-HDict.prototype.getRef = function(name) {
+HDict.prototype.getRef = function (name) {
   var v = this.get(name);
   if (!(v instanceof HRef)) throw Error("ClassCastExcetion: " + name);
   return v;
@@ -146,7 +146,7 @@ HDict.prototype.getRef = function(name) {
  * @param {string} name
  * @return {int}
  */
-HDict.prototype.getInt = function(name) {
+HDict.prototype.getInt = function (name) {
   var v = this.get(name);
   if (!(v instanceof HNum)) throw Error("ClassCastExcetion: " + name);
   return v.val;
@@ -157,7 +157,7 @@ HDict.prototype.getInt = function(name) {
  * @param {string} name
  * @return {float}
  */
-HDict.prototype.getDouble = function(name) {
+HDict.prototype.getDouble = function (name) {
   var v = this.get(name);
   if (!(v instanceof HNum)) throw Error("ClassCastExcetion: " + name);
   return v.val;
@@ -171,7 +171,7 @@ HDict.prototype.getDouble = function(name) {
  * String format is always "toZinc"
  * @return {string}
  */
-HDict.prototype.toString = function() {
+HDict.prototype.toString = function () {
   return this.toZinc();
 };
 
@@ -180,7 +180,7 @@ HDict.prototype.toString = function() {
  * @param {HDict} that
  * @return {boolean}
  */
-HDict.prototype.equals = function(that) {
+HDict.prototype.equals = function (that) {
   if (!(that instanceof HDict)) return false;
   if (this.size() !== that.size()) return false;
 
@@ -214,6 +214,7 @@ for (var i = cc("a"); i <= cc("z"); ++i) tagChars[i] = true;
 for (var i = cc("A"); i <= cc("Z"); ++i) tagChars[i] = true;
 for (var i = cc("0"); i <= cc("9"); ++i) tagChars[i] = true;
 tagChars[cc("_")] = true;
+tagChars[cc("-")] = true;
 
 /**
  * Return if the given string is a legal tag name.  The
@@ -222,7 +223,7 @@ tagChars[cc("_")] = true;
  * @param {string} n
  * @return {boolean}
  */
-HDict.isTagName = function(n) {
+HDict.isTagName = function (n) {
   if (n.length === 0) return false;
   var first = n.charCodeAt(0);
   if (first < cc("a") || first > cc("z")) return false;
@@ -238,7 +239,7 @@ HDict.isTagName = function(n) {
  * Encode value to zinc format
  * @return {string}
  */
-HDict.prototype.toZinc = function() {
+HDict.prototype.toZinc = function () {
   var s = "";
   var first = true;
   for (var it = this.iterator(); it.hasNext();) {
@@ -259,18 +260,18 @@ HDict.prototype.toZinc = function() {
 // MapImpl
 //////////////////////////////////////////////////////////////////////////
 
-HDict.MapImpl = function(map) {
+HDict.MapImpl = function (map) {
   this.map = map;
-  this.size = function() {
+  this.size = function () {
     return Object.keys(this.map).length;
   };
-  this.get = function(name, checked) {
+  this.get = function (name, checked) {
     var val = this.map[name];
-    if (typeof(val) !== 'undefined' && val !== null) return val;
+    if (typeof (val) !== 'undefined' && val !== null) return val;
     if (!checked) return null;
     throw new Error("Unknown name: " + name);
   };
-  this.iterator = function() {
+  this.iterator = function () {
     var index = 0;
     var map = this.map;
     var keys = Object.keys(map);
@@ -278,14 +279,14 @@ HDict.MapImpl = function(map) {
     var length = keys.length;
 
     return {
-      next: function() {
+      next: function () {
         var elem;
         if (!this.hasNext()) return null;
         elem = keys[index];
         index++;
         return new HDict.MapEntry(elem, map[elem]);
       },
-      hasNext: function() {
+      hasNext: function () {
         return index < length;
       }
     };
@@ -303,7 +304,7 @@ HDict.MapImpl.prototype = Object.create(HDict.prototype);
  * @param {HVal} val
  * @return {HDict.MapEntry}
  */
-HDict.prototype.toEntry = function(key, val) {
+HDict.prototype.toEntry = function (key, val) {
   return new HDict.MapEntry(key, val);
 };
 /**
@@ -311,21 +312,21 @@ HDict.prototype.toEntry = function(key, val) {
  * @param {string} key
  * @param {object} val
  */
-HDict.MapEntry = function(key, val) {
+HDict.MapEntry = function (key, val) {
   this.key = key;
   this.val = val;
 
-  this.getKey = function() {
+  this.getKey = function () {
     return this.key;
   };
-  this.getValue = function() {
+  this.getValue = function () {
     return this.val;
   };
-  this.equals = function(that) {
-    return (typeof(this.key) === 'undefined' || this.key === null ?
-        typeof(that.key) === 'undefined' || this.key === null : this.key === that.key) &&
-        (typeof(this.val) === 'undefined' || this.val === null ?
-        typeof(that.val) === 'undefined' || that.val === null : this.val === that.val);
+  this.equals = function (that) {
+    return (typeof (this.key) === 'undefined' || this.key === null ?
+      typeof (that.key) === 'undefined' || this.key === null : this.key === that.key) &&
+      (typeof (this.val) === 'undefined' || this.val === null ?
+        typeof (that.val) === 'undefined' || that.val === null : this.val === that.val);
   };
 };
 

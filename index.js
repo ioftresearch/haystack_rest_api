@@ -36,6 +36,6 @@ module.exports.HOp = require('./server/HOp');
 module.exports.HServer = require('./server/HServer');
 module.exports.HStdOps = require('./server/HStdOps');
 //module.exports.Test = require('./test/Test'); - Not needed by external apps
-//module.exports.TestDatabase = require('./test/TestDatabase'); - Not needed by external apps
+module.exports.TestDatabase = require('./test/TestDatabase');
 //module.exports.Base64 = require('./util/Base64'); - Not needed by external apps
 //module.exports.CryptoUtils = require('./util/CryptoUtil'); - Not needed by external apps

@@ -28,12 +28,12 @@ var http = require('http'),
 
 var postTimeout = 3000;
 var rejectUnauth = true;
-HClient.setRejectUnauthorized = function(boolval){
-  if(boolval === true || boolval === false)
+HClient.setRejectUnauthorized = function (boolval) {
+  if (boolval === true || boolval === false)
     rejectUnauth = boolval;
 };
 
-HClient.getRejectUnauthorized = function(boolval){
+HClient.getRejectUnauthorized = function (boolval) {
   return rejectUnauth;
 };
 
@@ -67,7 +67,7 @@ function HClient(uri, user, pass, format, connectTimeout, readTimeout) {
   this.cookieProperty = null;
   this.uwatches = {};
   this.format = format;
-  if (typeof(format)==='undefined')
+  if (typeof (format) === 'undefined')
     this.format = "ZINC";
 
   /** Base URI for connection such as "http://host/api/demo/".
@@ -103,19 +103,19 @@ HClientWatch.prototype = Object.create(HWatch.prototype);
 /**
  * @return {string}
  */
-HClientWatch.prototype.id = function() {
+HClientWatch.prototype.id = function () {
   return this.uid;
 };
 /**
  * @return {HNum}
  */
-HClientWatch.prototype.lease = function() {
+HClientWatch.prototype.lease = function () {
   return this.ulease;
 };
 /**
  * @return {string}
  */
-HClientWatch.prototype.dis = function() {
+HClientWatch.prototype.dis = function () {
   return this.udis;
 };
 /**
@@ -124,8 +124,8 @@ HClientWatch.prototype.dis = function() {
  * @param {function} callback
  * @return {HGrid}
  */
-HClientWatch.prototype.sub = function(ids, checked, callback) {
-  if (typeof(checked)==='function') {
+HClientWatch.prototype.sub = function (ids, checked, callback) {
+  if (typeof (checked) === 'function') {
     callback = checked;
     checked = true;
   }
@@ -136,33 +136,33 @@ HClientWatch.prototype.sub = function(ids, checked, callback) {
  * @param {HRef[]} ids
  * @param {function} callback
  */
-HClientWatch.prototype.unsub = function(ids, callback) {
+HClientWatch.prototype.unsub = function (ids, callback) {
   this.client.watchUnsub(this, ids, callback);
 };
 /**
  * @param {function} callback
  * @return {HGrid}
  */
-HClientWatch.prototype.pollChanges = function(callback) {
+HClientWatch.prototype.pollChanges = function (callback) {
   this.client.watchPoll(this, false, callback);
 };
 /**
  * @param {function} callback
  * @return {HGrid}
  */
-HClientWatch.prototype.pollRefresh = function(callback) {
+HClientWatch.prototype.pollRefresh = function (callback) {
   this.client.watchPoll(this, true, callback);
 };
 /**
  * @param {function} callback
  */
-HClientWatch.prototype.close = function(callback) {
+HClientWatch.prototype.close = function (callback) {
   this.client.watchClose(this, true, callback);
 };
 /**
  * @return {boolean}
  */
-HClientWatch.prototype.isOpen = function() {
+HClientWatch.prototype.isOpen = function () {
   return !this.closed;
 };
 
@@ -183,7 +183,7 @@ function Property(key, value) {
 /**
  * @return {string}
  */
-Property.prototype.toString = function() {
+Property.prototype.toString = function () {
   return "[Property " +
     "key:" + this.key + ", " +
     "value:" + this.value + "]";
@@ -200,7 +200,7 @@ Property.prototype.toString = function() {
  * @param {Response} resp
  * @param {function} callback
  */
-HClient.prototype.authenticateBasic = function(t, resp, callback) {
+HClient.prototype.authenticateBasic = function (t, resp, callback) {
   // According to http://en.wikipedia.org/wiki/Basic_access_authentication,
   // we are supposed to get a "WWW-Authenticate" header, that has the 'realm' in it.
   // We don't get it, but it doesn't matter.  Just set up a Property
@@ -220,7 +220,7 @@ HClient.prototype.authenticateBasic = function(t, resp, callback) {
  * @params {Response} resp
  * @return {JSObject} (i.e. '{}')
  */
-HClient.prototype.parseResProps = function(body) {
+HClient.prototype.parseResProps = function (body) {
   // parse response as name:value pairs
   var props = {};
   var lines = body.split("\n");
@@ -238,7 +238,7 @@ HClient.prototype.parseResProps = function(body) {
  * parse URL into host, path and port and return as array
  * @memberof HClient
  */
-HClient.prototype.parseUrl = function(url) {
+HClient.prototype.parseUrl = function (url) {
   // parse url information to host, port and path
   var host = "";
   var path = "";
@@ -263,9 +263,9 @@ HClient.prototype.parseUrl = function(url) {
  * @param {Response} resp
  * @param {function} callback
  */
-HClient.prototype.authenticateFolio = function(t, resp, callback) {
+HClient.prototype.authenticateFolio = function (t, resp, callback) {
   var authUri = resp.headers["folio-auth-api-uri"];
-  if (typeof(authUri) === 'undefined' || authUri === null) {
+  if (typeof (authUri) === 'undefined' || authUri === null) {
     callback(new Error("Missing 'Folio-Auth-Api-Uri' header"));
     return;
   }
@@ -285,25 +285,24 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
   };
 
   var httptype = http;
-  if(url.indexOf('https') === 0)
-  {
+  if (url.indexOf('https') === 0) {
     httptype = https;
     opts.rejectUnauthorized = rejectUnauth;
   }
-  httptype.get(opts, function(res) {
+  httptype.get(opts, function (res) {
     var body = '';
-    res.on('data', function(d) {
+    res.on('data', function (d) {
       body += d;
     });
-    res.on('end', function() {
+    res.on('end', function () {
       // parse response as name:value pairs
       var props = t.parseResProps(body);
 
       // get salt and nonce values
       var salt = props.userSalt;
-      if (typeof(salt) === 'undefined') throw new Error("auth missing 'userSalt'");
+      if (typeof (salt) === 'undefined') throw new Error("auth missing 'userSalt'");
       var nonce = props.nonce;
-      if (typeof(nonce) === 'undefined') throw new Error("auth missing 'nonce'");
+      if (typeof (nonce) === 'undefined') throw new Error("auth missing 'nonce'");
 
       // compute hmac
       var hmacBytes = CryptoUtil.hmac("sha1", (t.user + ":" + salt), t.pass);
@@ -328,18 +327,17 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
       };
 
       var httptype = http;
-      if(url.indexOf('https') === 0)
-      {
+      if (url.indexOf('https') === 0) {
         httptype = https;
         opts.rejectUnauthorized = rejectUnauth;
       }
 
-      var req = httptype.request(opts, function(res) {
+      var req = httptype.request(opts, function (res) {
         var body = '';
-        res.on('data', function(d) {
+        res.on('data', function (d) {
           body += d;
         });
-        res.on('end', function() {
+        res.on('end', function () {
           if (res.statusCode !== 200) {
             callback(new Error("Invalid username/password [" + res.statusCode + "]"));
             return;
@@ -348,7 +346,7 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
           // parse successful authentication to get cookie value
           props = t.parseResProps(body);
           var cookie = props.cookie;
-          if (typeof(cookie) === 'undefined') {
+          if (typeof (cookie) === 'undefined') {
             callback(new Error("auth missing 'cookie'"));
             return;
           }
@@ -358,10 +356,10 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
           callback(null, t);
         });
       });
-      if (this.connectTimeout){
+      if (this.connectTimeout) {
         var cTimeout = this.connectTimeout
         req.setTimeout(cTimeout);
-        req.on('timeout', function() {
+        req.on('timeout', function () {
           req.abort();
           req.end();
           callback(new Error('Connection timeout of ' + cTimeout + 'ms reached'))
@@ -369,9 +367,9 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
       }
       if (this.readTimeout) {
         var rTimeout = this.readTimeout
-        req.on('socket', function(sock) {
-          sock.on('connect', function() {
-            setTimeout(function() {
+        req.on('socket', function (sock) {
+          sock.on('connect', function () {
+            setTimeout(function () {
               req.abort();
               req.end();
               callback(new Error('Read timeout of ' + rTimeout + 'ms reached'))
@@ -379,14 +377,14 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
           })
         })
       }
-      req.on('error', function(e) {
+      req.on('error', function (e) {
         callback(e);
       });
       // write the data
       req.write("nonce:" + nonce + "\ndigest:" + digest + "\n");
       req.end();
     });
-  }).on('error', function(e) {
+  }).on('error', function (e) {
     callback(e);
   });
 
@@ -400,7 +398,7 @@ HClient.prototype.authenticateFolio = function(t, resp, callback) {
  * @param {HClient} t (this)
  * @param {function} callback
  */
-HClient.prototype.authenticate = function(callback) {
+HClient.prototype.authenticate = function (callback) {
   var self = this;
 
   // make request to about to get headers
@@ -420,15 +418,14 @@ HClient.prototype.authenticate = function(callback) {
   };
 
   var httptype = http;
-  if(url.indexOf('https') === 0)
-  {
+  if (url.indexOf('https') === 0) {
     httptype = https;
     opts.rejectUnauthorized = rejectUnauth;
   }
 
-  httptype.get(opts, function(res) {
+  httptype.get(opts, function (res) {
     var folioAuthUri = res.headers["folio-auth-api-uri"];
-    if (typeof(folioAuthUri) !== 'undefined' && folioAuthUri !== null) {
+    if (typeof (folioAuthUri) !== 'undefined' && folioAuthUri !== null) {
       self.authenticateFolio(self, res, callback);
       return;
     }
@@ -446,7 +443,7 @@ HClient.prototype.authenticate = function(callback) {
         callback(new Error("Unexpected Response Code: " + respCode));
         return;
     }
-  }).on('error', function(e) {
+  }).on('error', function (e) {
     callback(e);
   });
 };
@@ -464,10 +461,10 @@ HClient.prototype.authenticate = function(callback) {
  * @param {function} callback
  * @return {HClient}
  */
-HClient.open = function(uri, user, pass, format, callback, connectTimeout, readTimeout) {
+HClient.open = function (uri, user, pass, format, callback, connectTimeout, readTimeout) {
   var _format = format;
   var _callback = callback;
-  if (typeof(_format)==='function') {
+  if (typeof (_format) === 'function') {
     _callback = _format;
     _format = undefined;
   }
@@ -479,7 +476,7 @@ HClient.open = function(uri, user, pass, format, callback, connectTimeout, readT
  * @param {function} callback
  * @return {HClient}
  */
-HClient.prototype.open = function(callback) {
+HClient.prototype.open = function (callback) {
   this.authenticate(callback);
 };
 
@@ -488,8 +485,8 @@ HClient.prototype.open = function(callback) {
  * @param {function} callback
  * @return {HDict}
  */
-HClient.prototype.about = function(callback) {
-  this.call("about", HGrid.EMPTY, function(err, grid) {
+HClient.prototype.about = function (callback) {
+  this.call("about", HGrid.EMPTY, function (err, grid) {
     callback(null, grid.row(0));
   });
 };
@@ -499,7 +496,7 @@ HClient.prototype.about = function(callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HClient.prototype.ops = function(callback) {
+HClient.prototype.ops = function (callback) {
   this.call("ops", HGrid.EMPTY, callback);
 };
 
@@ -508,7 +505,7 @@ HClient.prototype.ops = function(callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HClient.prototype.formats = function(callback) {
+HClient.prototype.formats = function (callback) {
   this.call("formats", HGrid.EMPTY, callback);
 };
 
@@ -522,8 +519,8 @@ HClient.prototype.formats = function(callback) {
  * @param {function} callback
  * @return {HDict}
  */
-HClient.prototype.onReadById = function(id, callback) {
-  this.readByIds([id], false, function(err, grid) {
+HClient.prototype.onReadById = function (id, callback) {
+  this.readByIds([id], false, function (err, grid) {
     if (grid.isEmpty()) {
       callback(null, null);
       return;
@@ -543,7 +540,7 @@ HClient.prototype.onReadById = function(id, callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HClient.prototype.onReadByIds = function(ids, callback) {
+HClient.prototype.onReadByIds = function (ids, callback) {
   var b = new HGridBuilder();
   b.addCol("id");
   for (var i = 0; i < ids.length; ++i) b.addRow([ids[i]]);
@@ -557,7 +554,7 @@ HClient.prototype.onReadByIds = function(ids, callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HClient.prototype.onReadAll = function(filter, limit, callback) {
+HClient.prototype.onReadAll = function (filter, limit, callback) {
   var b = new HGridBuilder();
   b.addCol("filter");
   b.addCol("limit");
@@ -575,13 +572,13 @@ HClient.prototype.onReadAll = function(filter, limit, callback) {
  * @param {HClient} t (this)
  * @param {Response} resp
  */
-HClient.prototype.checkSetCookie = function(resp) {
+HClient.prototype.checkSetCookie = function (resp) {
   // if auth is already cookie based, we don't want to overwrite it
   if (this.authProperty !== null && this.authProperty.key === "Cookie") return;
 
   // check for Set-Cookie
   var header = resp.headers["set-cookie"];
-  if (typeof(header) === 'undefined' || header === null) return;
+  if (typeof (header) === 'undefined' || header === null) return;
 
   // parse cookie name=value pair
   header = header.toString();
@@ -608,15 +605,15 @@ function postString(t, op, data, callback) {
   var url = t.uri + op;
   var headers = {};
   headers.Connection = "Close";
-  if (t.format==='JSON') {
+  if (t.format === 'JSON') {
     headers["Content-Type"] = "application/json; charset=utf-8";
     headers["Accept"] = "application/json";
   } else {
     headers["Content-Type"] = "text/zinc; charset=utf-8";
   }
   headers["Content-Length"] = Buffer.byteLength(data);
-  if (t.authProperty !== null && typeof(t.authProperty)!=='undefined') headers[t.authProperty.key] = t.authProperty.value;
-  if (t.cookieProperty !== null && typeof(t.cookieProperty)!=='undefined') headers[t.cookieProperty.key] = t.cookieProperty.value;
+  if (t.authProperty !== null && typeof (t.authProperty) !== 'undefined') headers[t.authProperty.key] = t.authProperty.value;
+  if (t.cookieProperty !== null && typeof (t.cookieProperty) !== 'undefined') headers[t.cookieProperty.key] = t.cookieProperty.value;
 
   // parse url information to host, port and path
   var info = t.parseUrl(url);
@@ -630,18 +627,17 @@ function postString(t, op, data, callback) {
   };
 
   var httptype = http;
-  if(url.indexOf('https') === 0)
-  {
+  if (url.indexOf('https') === 0) {
     httptype = https;
     opts.rejectUnauthorized = rejectUnauth;
   }
 
-  var req = httptype.request(opts, function(res) {
+  var req = httptype.request(opts, function (res) {
     var body = '';
-    res.on('data', function(d) {
+    res.on('data', function (d) {
       body += d;
     });
-    res.on('end', function() {
+    res.on('end', function () {
       // check for successful request
       if (res.statusCode !== 200) {
         callback(new Error("Call Http Error: " + res.statusCode));
@@ -660,14 +656,14 @@ function postString(t, op, data, callback) {
       callback(null, body);
     });
   });
-  req.on('error', function(e) {
+  req.on('error', function (e) {
     callback(new Error("Call Network Error: " + e.message));
   })
   // create timeouts, if they exist
-  if (this.connectTimeout){
+  if (this.connectTimeout) {
     var cTimeout = this.connectTimeout
     req.setTimeout(cTimeout);
-    req.on('timeout', function() {
+    req.on('timeout', function () {
       req.abort();
       req.end();
       callback(new Error('Connection timeout of ' + cTimeout + 'ms reached'))
@@ -675,9 +671,9 @@ function postString(t, op, data, callback) {
   }
   if (this.readTimeout) {
     var rTimeout = this.readTimeout
-    req.on('socket', function(sock) {
-      sock.on('connect', function() {
-        setTimeout(function() {
+    req.on('socket', function (sock) {
+      sock.on('connect', function () {
+        setTimeout(function () {
           req.abort();
           req.end();
           callback(new Error('Read timeout of ' + rTimeout + 'ms reached'))
@@ -700,13 +696,13 @@ function postString(t, op, data, callback) {
  * @returns {HGrid}
  */
 function postGrid(t, op, req, callback) {
-  getWriter(t).gridToString(req, function(err, reqStr) {
+  getWriter(t).gridToString(req, function (err, reqStr) {
     if (err) {
       callback(err);
       return;
     }
 
-    postString(t, op, reqStr, function(err, str) {
+    postString(t, op, reqStr, function (err, str) {
       if (err) {
         callback(err);
       } else {
@@ -717,12 +713,12 @@ function postGrid(t, op, req, callback) {
 }
 
 function getReader(t, str) {
-  if (t.format==='JSON') return new HJsonReader(str);
+  if (t.format === 'JSON') return new HJsonReader(str);
 
   return new HZincReader(str);
 }
 function getWriter(t) {
-  if (t.format==='JSON') return HJsonWriter;
+  if (t.format === 'JSON') return HJsonWriter;
 
   return HZincWriter;
 }
@@ -738,8 +734,8 @@ function getWriter(t) {
  * @param {function} callback
  * @return {HGrid}
  */
-HClient.prototype.call = function(op, req, callback) {
-  postGrid(this, op, req, function(err, grid) {
+HClient.prototype.call = function (op, req, callback) {
+  postGrid(this, op, req, function (err, grid) {
     if (err || grid.isErr()) {
       callback(err ? err : new Error(grid.dict.map.errTrace + "\n"));
       return
@@ -761,7 +757,7 @@ HClient.prototype.call = function(op, req, callback) {
  * @return {HGrid}
  * @throws Raise CallErrException if the server raises an exception.
  */
-HClient.prototype.evaluate = function(expr, callback) {
+HClient.prototype.evaluate = function (expr, callback) {
   var b = new HGridBuilder();
   b.addCol("expr");
   b.addRow([HStr.make(expr)]);
@@ -782,10 +778,10 @@ HClient.prototype.evaluate = function(expr, callback) {
  * @param {function} callback
  * @return {HGrid[]}
  */
-HClient.prototype.evalAll = function(req, checked, callback) {
+HClient.prototype.evalAll = function (req, checked, callback) {
   var _checked = checked;
   var _callback = callback;
-  if (typeof(_checked)==='function') {
+  if (typeof (_checked) === 'function') {
     callback = _checked;
     _checked = true;
   }
@@ -799,12 +795,12 @@ HClient.prototype.evalAll = function(req, checked, callback) {
     req = b.toGrid();
   }
 
-  getWriter(self).gridToString(req, function(err, reqStr) {
+  getWriter(self).gridToString(req, function (err, reqStr) {
     if (err) {
       _callback(err);
     } else {
 
-      postString(self, "evalAll", reqStr, function(err, str) {
+      postString(self, "evalAll", reqStr, function (err, str) {
         new getReader(self, str).readGrids(function (err, res) {
           if (_checked) {
             for (i = 0; i < res.length; ++i) {
@@ -832,7 +828,7 @@ HClient.prototype.evalAll = function(req, checked, callback) {
  * @param {HNum} lease
  * @return {HClientWatch}
  */
-HClient.prototype.watchOpen = function(dis, lease) {
+HClient.prototype.watchOpen = function (dis, lease) {
   return new HClientWatch(this, dis, lease);
 };
 
@@ -842,7 +838,7 @@ HClient.prototype.watchOpen = function(dis, lease) {
  * subscribed and assigned an identifier by the server.
  * @return {HWatch[]}
  */
-HClient.prototype.watches = function() {
+HClient.prototype.watches = function () {
   var keys = Object.keys(this.uwatches);
   var vals = [];
   for (var i = 0; i < keys.length; i++)
@@ -858,12 +854,12 @@ HClient.prototype.watches = function() {
  * @param {boolean} checked - optional, defaults to true
  * @return {HWatch}
  */
-HClient.prototype.watch = function(id, checked) {
+HClient.prototype.watch = function (id, checked) {
   var _checked = checked;
-  if (typeof(_checked) === 'undefined') _checked = true;
+  if (typeof (_checked) === 'undefined') _checked = true;
 
   var w = this.uwatches[id];
-  if (typeof(w) !== 'undefined' && w !== null) return w;
+  if (typeof (w) !== 'undefined' && w !== null) return w;
   if (_checked) throw new Error("Unknown Watch: " + id);
   return null;
 };
@@ -876,7 +872,7 @@ HClient.prototype.watch = function(id, checked) {
  * @param {function} callback
  * @return {HGrid[]}
  */
-HClient.prototype.watchSub = function(w, ids, checked, callback) {
+HClient.prototype.watchSub = function (w, ids, checked, callback) {
   if (ids.length === 0) {
     callback(new Error("ids are empty"));
     return;
@@ -898,7 +894,7 @@ HClient.prototype.watchSub = function(w, ids, checked, callback) {
   for (i = 0; i < ids.length; ++i) b.addRow([ids[i]]);
 
   // make request
-  this.call("watchSub", b.toGrid(), function(err, grid) {
+  this.call("watchSub", b.toGrid(), function (err, grid) {
     if (err) {
       // any server side error is considered close
       this.watchClose(w, false);
@@ -937,7 +933,7 @@ HClient.prototype.watchSub = function(w, ids, checked, callback) {
  * @param {HRef[]} ids
  * @param {function} callback
  */
-HClient.prototype.watchUnsub = function(w, ids, callback) {
+HClient.prototype.watchUnsub = function (w, ids, callback) {
   if (ids.length === 0) {
     callback(new Error("ids are empty"));
     return;
@@ -970,7 +966,7 @@ HClient.prototype.watchUnsub = function(w, ids, callback) {
  * @param {function} callback
  * @returns {HGrid}
  */
-HClient.prototype.watchPoll = function(w, refresh, callback) {
+HClient.prototype.watchPoll = function (w, refresh, callback) {
   if (w.uid === null) {
     callback(new Error("nothing subscribed yet"));
     return;
@@ -987,7 +983,7 @@ HClient.prototype.watchPoll = function(w, refresh, callback) {
   b.addCol("empty");
 
   // make request
-  this.call("watchPoll", b.toGrid(), function(err, grid) {
+  this.call("watchPoll", b.toGrid(), function (err, grid) {
     if (err) {
       // any server side error is considered close
       this.watchClose(w, false);
@@ -1004,7 +1000,7 @@ HClient.prototype.watchPoll = function(w, refresh, callback) {
  * @param {boolean} send
  * @param {function} callback
  */
-HClient.prototype.watchClose = function(w, send, callback) {
+HClient.prototype.watchClose = function (w, send, callback) {
   // mark flag on watch itself, short circuit if already closed
   if (w.closed) return;
   w.closed = true;
@@ -1040,7 +1036,7 @@ HClient.prototype.watchClose = function(w, send, callback) {
  * @param {function} callback
  * @returns {HGrid}
  */
-HClient.prototype.pointWrite = function(id, level, who, val, dur, callback) {
+HClient.prototype.pointWrite = function (id, level, who, val, dur, callback) {
   var b = new HGridBuilder();
   b.addCol("id");
   b.addCol("level");
@@ -1067,7 +1063,7 @@ HClient.prototype.pointWrite = function(id, level, who, val, dur, callback) {
  * @param {function} callback
  * @returns {HGrid}
  */
-HClient.prototype.pointWriteArray = function(id, callback) {
+HClient.prototype.pointWriteArray = function (id, callback) {
   var b = new HGridBuilder();
   b.addCol("id");
   b.addRow([id]);
@@ -1092,7 +1088,7 @@ HClient.prototype.pointWriteArray = function(id, callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HClient.prototype.hisRead = function(id, range, callback) {
+HClient.prototype.hisRead = function (id, range, callback) {
   var b = new HGridBuilder();
   b.addCol("id");
   b.addCol("range");
@@ -1110,8 +1106,10 @@ HClient.prototype.hisRead = function(id, range, callback) {
  * @param {HHisItem[]} items
  * @param {function} callback
  */
-HClient.prototype.hisWrite = function(id, items, callback) {
+HClient.prototype.hisWrite = function (id, items, callback) {
   var meta = new HDictBuilder().add("id", id).toDict();
+  console.log("META")
+  console.log(meta)
   var req = HGridBuilder.hisItemsToGrid(meta, items);
   this.call("hisWrite", req, callback);
 };
@@ -1128,7 +1126,7 @@ HClient.prototype.hisWrite = function(id, items, callback) {
  * @param {function} callbacj
  * @return {HGrid}
  */
-HClient.prototype.invokeAction = function(id, action, args, callback) {
+HClient.prototype.invokeAction = function (id, action, args, callback) {
   var meta = new HDictBuilder().add("id", id).add("action", action).toDict();
   var req = HGridBuilder.dictsToGrid(meta, [args]);
   this.call("invokeAction", req, callback);

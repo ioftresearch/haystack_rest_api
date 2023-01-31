@@ -20,16 +20,16 @@ function HDictBuilder() {
 module.exports = HDictBuilder;
 
 var HBool = require('./HBool'),
-    HDict = require('./HDict'),
-    HMarker = require('./HMarker'),
-    HNum = require('./HNum'),
-    HStr = require('./HStr');
+  HDict = require('./HDict'),
+  HMarker = require('./HMarker'),
+  HNum = require('./HNum'),
+  HStr = require('./HStr');
 
 /**
  * Return if size is zero
  * @return {boolean}
  */
-HDictBuilder.prototype.isEmpty = function() {
+HDictBuilder.prototype.isEmpty = function () {
   return this.size() === 0;
 };
 
@@ -38,9 +38,9 @@ HDictBuilder.prototype.isEmpty = function() {
  * @param {string} name
  * @return {boolean}
  */
-HDictBuilder.prototype.has = function(name) {
+HDictBuilder.prototype.has = function (name) {
   var t = this.get(name, false);
-  return typeof(t) !== 'undefined' && t !== null;
+  return typeof (t) !== 'undefined' && t !== null;
 };
 
 /**
@@ -48,16 +48,16 @@ HDictBuilder.prototype.has = function(name) {
  * @param {string} name
  * @return {boolean}
  */
-HDictBuilder.prototype.missing = function(name) {
+HDictBuilder.prototype.missing = function (name) {
   var t = this.get(name, false);
-  return typeof(t) === 'undefined' || t === null;
+  return typeof (t) === 'undefined' || t === null;
 };
 
 /**
  * Return number of tag name/value pairs
  * @return {int}
  */
-HDictBuilder.prototype.size = function() {
+HDictBuilder.prototype.size = function () {
   return Object.keys(this.map).length;
 };
 
@@ -68,12 +68,12 @@ HDictBuilder.prototype.size = function() {
  * @param {boolean} checked
  * @return {HVal}
  */
-HDictBuilder.prototype.get = function(name, checked) {
+HDictBuilder.prototype.get = function (name, checked) {
   var _checked = checked;
-  if (typeof(_checked) === 'undefined') _checked = false;
+  if (typeof (_checked) === 'undefined') _checked = false;
 
   var val = this.map[name];
-  if (typeof(val) !== 'undefined' && val !== null)
+  if (typeof (val) !== 'undefined' && val !== null)
     return val;
   if (!_checked) return null;
   throw new Error("Unknown Name: " + name);
@@ -83,8 +83,8 @@ HDictBuilder.prototype.get = function(name, checked) {
  * Convert current state to an immutable HDict instance
  * @return {HDict}
  */
-HDictBuilder.prototype.toDict = function() {
-  if (typeof(this.map) === 'undefined' || this.map === null || this.isEmpty())
+HDictBuilder.prototype.toDict = function () {
+  if (typeof (this.map) === 'undefined' || this.map === null || this.isEmpty())
     return HDict.EMPTY;
   var dict = new HDict.MapImpl(this.map);
   this.map = null;
@@ -100,8 +100,8 @@ HDictBuilder.prototype.toDict = function() {
  * @param {string} unit - only used with numbers
  * @returns {HDictBuilder}
  */
-HDictBuilder.prototype.add = function(name, val, unit) {
-  if (typeof(val) === 'undefined') {
+HDictBuilder.prototype.add = function (name, val, unit) {
+  if (typeof (val) === 'undefined') {
     if (name instanceof HDict) {
       for (var it = name.iterator(); it.hasNext();) {
         var entry = it.next();
@@ -115,14 +115,14 @@ HDictBuilder.prototype.add = function(name, val, unit) {
     if (!HDict.isTagName(name)) throw new Error("Invalid tag name: " + name);
 
     // handle primitives
-    if (typeof(val) === 'number' || val instanceof Number)
+    if (typeof (val) === 'number' || val instanceof Number)
       return this.add(name, HNum.make(val, unit));
-    if (typeof(val) === 'string' || val instanceof String)
+    if (typeof (val) === 'string' || val instanceof String)
       return this.add(name, HStr.make(val));
-    if (typeof(val) === 'boolean' || val instanceof Boolean)
+    if (typeof (val) === 'boolean' || val instanceof Boolean)
       return this.add(name, HBool.make(val));
 
-    if (typeof(this.map) === 'undefined' || this.map === null)
+    if (typeof (this.map) === 'undefined' || this.map === null)
       this.map = {};
 
     this.map[name] = val;

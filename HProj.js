@@ -15,7 +15,7 @@
 
  * @constructor
  */
-function HProj() {}
+function HProj() { }
 module.exports = HProj;
 
 /** Abstract functions that must be defined in inheriting classes
@@ -42,16 +42,18 @@ module.exports = HProj;
  * @param {function} callback
  * @return {HDict}
  */
-HProj.prototype.readById = function(id, checked, callback) {
+HProj.prototype.readById = function (id, checked, callback) {
   var _checked = checked;
   var _callback = callback;
-  if (typeof(_checked)==='function') {
+  console.log("A", id, checked, callback)
+  if (typeof (_checked) === 'function') {
     _callback = _checked;
     _checked = true;
   }
 
-  this.onReadById(id, function(err, rec) {
-    if (typeof(rec) !== 'undefined' && rec !== null) {
+  this.onReadById(id, function (err, rec) {
+    console.log("REC", rec)
+    if (typeof (rec) !== 'undefined' && rec !== null) {
       _callback(null, rec);
       return;
     }
@@ -75,15 +77,15 @@ HProj.prototype.readById = function(id, checked, callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HProj.prototype.readByIds = function(ids, checked, callback) {
+HProj.prototype.readByIds = function (ids, checked, callback) {
   var _checked = checked;
   var _callback = callback;
-  if (typeof(_checked)==='function') {
+  if (typeof (_checked) === 'function') {
     _callback = _checked;
     _checked = true;
   }
 
-  this.onReadByIds(ids, function(err, grid) {
+  this.onReadByIds(ids, function (err, grid) {
     if (_checked) {
       for (var i = 0; i < grid.numRows(); ++i) {
         if (grid.row(i).missing("id")) {
@@ -106,15 +108,15 @@ HProj.prototype.readByIds = function(ids, checked, callback) {
  * @param {function} callback
  * @return {HDict}
  */
-HProj.prototype.read = function(filter, checked, callback) {
+HProj.prototype.read = function (filter, checked, callback) {
   var _checked = checked;
   var _callback = callback;
-  if (typeof(_checked)==='function') {
+  if (typeof (_checked) === 'function') {
     _callback = _checked;
     _checked = true;
   }
 
-  this.readAll(filter, 1, function(err, grid) {
+  this.readAll(filter, 1, function (err, grid) {
     if (err) {
       _callback(err);
       return;
@@ -139,10 +141,11 @@ HProj.prototype.read = function(filter, checked, callback) {
  * @param {function} callback
  * @return {HGrid}
  */
-HProj.prototype.readAll = function(filter, limit, callback) {
+HProj.prototype.readAll = function (filter, limit, callback) {
+  console.log("FILTER READL ALL", filter, limit, callback)
   var _limit = limit;
   var _callback = callback;
-  if (typeof(_limit)==='function') {
+  if (typeof (_limit) === 'function') {
     _callback = _limit;
     _limit = 2147483647;
   }

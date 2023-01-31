@@ -26,7 +26,7 @@ function HDateTime(date, time, tz, tzOffset) {
   this.date = date;
   this.time = time;
   this.tz = tz;
-  this.tzOffset = (typeof(tzOffset) === 'undefined' ? 0 : tzOffset);
+  this.tzOffset = (typeof (tzOffset) === 'undefined' ? 0 : tzOffset);
   this.moment = null;
   this.mils = null; // long - millis since Epoch
 }
@@ -34,16 +34,16 @@ HDateTime.prototype = Object.create(HVal.prototype);
 module.exports = HDateTime;
 
 var moment = require('moment-timezone'),
-    HDate = require('./HDate'),
-    HTime = require('./HTime'),
-    HTimeZone = require('./HTimeZone'),
-    HZincReader = require('./io/HZincReader');
+  HDate = require('./HDate'),
+  HTime = require('./HTime'),
+  HTimeZone = require('./HTimeZone'),
+  HZincReader = require('./io/HZincReader');
 
 /**
  * Get this date time as Java milliseconds since epoch
  * @return {float}
  */
-HDateTime.prototype.millis = function() {
+HDateTime.prototype.millis = function () {
   if (this.mils <= 0)
     this.mils = parseInt(getMomentDate(this.date, this.time, this.tz).valueOf());
 
@@ -53,20 +53,20 @@ HDateTime.prototype.millis = function() {
 function getMomentDate(date, time, tz) {
   // convert to designated timezone
   var ds = date.year + "-";
-  if (date.month<10) ds += "0";
+  if (date.month < 10) ds += "0";
   ds += date.month + "-";
-  if (date.day<10) ds += "0";
+  if (date.day < 10) ds += "0";
   ds += date.day + " "
-  if (time.hour<10) ds += "0";
+  if (time.hour < 10) ds += "0";
   ds += time.hour + ":"
-  if (time.min<10) ds += "0";
+  if (time.min < 10) ds += "0";
   ds += time.min + ":"
-  if (time.sec<10) ds += "0";
+  if (time.sec < 10) ds += "0";
   ds += time.sec;
-  if (time.ms>0) {
+  if (time.ms > 0) {
     ds += ".";
-    if (time.ms<100) ds += "0";
-    if (time.ms<10) ds += "0";
+    if (time.ms < 100) ds += "0";
+    if (time.ms < 10) ds += "0";
     ds += time.ms;
   }
 
@@ -77,7 +77,7 @@ function getMomentDate(date, time, tz) {
  * Encode as "YYYY-MM-DD'T'hh:mm:ss.FFFz zzzz"
  * @return {string}
  */
-HDateTime.prototype.toZinc = function() {
+HDateTime.prototype.toZinc = function () {
   var s = this.date.toZinc() + "T" + this.time.toZinc();
 
   if (this.tzOffset === 0) {
@@ -106,7 +106,7 @@ HDateTime.prototype.toZinc = function() {
  * Encode as "t:YYYY-MM-DD'T'hh:mm:ss.FFFz zzzz"
  * @returns string
  */
-HDateTime.prototype.toJSON = function() {
+HDateTime.prototype.toJSON = function () {
   return "t:" + this.toZinc();
 };
 
@@ -115,9 +115,9 @@ HDateTime.prototype.toJSON = function() {
  * @param {HDateTime} that - object to be compared to
  * @return {boolean}
  */
-HDateTime.prototype.equals = function(that) {
+HDateTime.prototype.equals = function (that) {
   return that instanceof HDateTime && this.date.equals(that.date) &&
-      this.time.equals(that.time) && this.tzOffset === that.tzOffset && this.tz === that.tz;
+    this.time.equals(that.time) && this.tzOffset === that.tzOffset && this.tz === that.tz;
 };
 
 /**
@@ -125,7 +125,7 @@ HDateTime.prototype.equals = function(that) {
  * @param {HDateTime} that - object to be compared to
  * @return {int}
  */
-HDateTime.prototype.compareTo = function(that) {
+HDateTime.prototype.compareTo = function (that) {
   var thisMillis = this.millis();
   var thatMillis = that.millis();
   if (thisMillis < thatMillis) return -1;
@@ -133,13 +133,13 @@ HDateTime.prototype.compareTo = function(that) {
   return 0;
 };
 
-HDateTime.prototype.toLocaleString = function() {
+HDateTime.prototype.toLocaleString = function () {
   return new Date(this.mils).toLocaleString();
 };
-HDateTime.prototype.toDateString = function() {
+HDateTime.prototype.toDateString = function () {
   return new Date(this.mils).toString();
 };
-HDateTime.prototype.getMoment = function() { return this.moment; };
+HDateTime.prototype.getMoment = function () { return this.moment; };
 
 /**
  * Construct from various values
@@ -163,7 +163,7 @@ HDateTime.prototype.getMoment = function() { return this.moment; };
  * @param {int} arg8 - TimeZone Offset - Constructor with date and time (to sec or to min) fields.
  * @return {HDateTime}
  */
-HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
+HDateTime.make = function (arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
   var d, tzOffset, ts;
   if (arg7 instanceof HTimeZone) {
     return HDateTime.make(HDate.make(arg1, arg2, arg3), HTime.make(arg4, arg5, arg6), arg7, arg8);
@@ -172,7 +172,7 @@ HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
   } else if (arg3 instanceof HTimeZone) {
     var m = getMomentDate(arg1, arg2, arg3);
     tzOffset = arg4;
-    if (typeof(tzOffset) === 'undefined') tzOffset = m.utcOffset() * 60;
+    if (typeof (tzOffset) === 'undefined') tzOffset = m.utcOffset() * 60;
 
     ts = new HDateTime(arg1, arg2, arg3, tzOffset);
     ts.mils = parseInt(m.valueOf());
@@ -185,29 +185,29 @@ HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
     throw new Error("Parse Error: " + arg1);
   } else {
     var tz = arg2;
-    if (typeof(tz) === 'undefined')
+    if (typeof (tz) === 'undefined')
       tz = HTimeZone.DEFAULT;
 
     d = new Date(arg1);
     // convert to designated timezone
     var ds = d.getUTCFullYear() + "-";
-    if ((d.getUTCMonth()+1)<10) ds += "0";
+    if ((d.getUTCMonth() + 1) < 10) ds += "0";
     ds += (d.getUTCMonth() + 1) + "-";
-    if (d.getUTCDate()<10) ds += "0";
+    if (d.getUTCDate() < 10) ds += "0";
     ds += d.getUTCDate() + "T"
-    if (d.getUTCHours()<10) ds += "0";
+    if (d.getUTCHours() < 10) ds += "0";
     ds += d.getUTCHours() + ":"
-    if (d.getUTCMinutes()<10) ds += "0";
+    if (d.getUTCMinutes() < 10) ds += "0";
     ds += d.getUTCMinutes() + ":"
-    if (d.getUTCSeconds()<10) ds += "0";
+    if (d.getUTCSeconds() < 10) ds += "0";
     ds += d.getUTCSeconds();
-    if (d.getUTCMilliseconds()>0) {
+    if (d.getUTCMilliseconds() > 0) {
       ds += ".";
-      if (d.getUTCMilliseconds()<100) ds += "0";
-      if (d.getUTCMilliseconds()<10) ds += "0";
+      if (d.getUTCMilliseconds() < 100) ds += "0";
+      if (d.getUTCMilliseconds() < 10) ds += "0";
       ds += d.getUTCMilliseconds();
     }
-
+    console.log("TIMEZONE", tz)
     var m = moment.tz(ds + "Z", tz.js.name);
     tzOffset = m.utcOffset() * 60;
 
@@ -223,9 +223,9 @@ HDateTime.make = function(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) {
  * @param {HTimeZone} tz
  * @return {HDateTime}
  */
-HDateTime.now = function(tz) {
+HDateTime.now = function (tz) {
   var _tz = tz;
-  if (typeof(_tz) === 'undefined')
+  if (typeof (_tz) === 'undefined')
     _tz = HTimeZone.DEFAULT;
   var d = new Date();
   return HDateTime.make(d.getTime(), _tz);

@@ -34,7 +34,7 @@ module.exports = HHisItem;
  * @param {boolean} checked
  * @returns {HVal}
  */
-HHisItem.prototype.get = function(name, checked) {
+HHisItem.prototype.get = function (name, checked) {
   if (name === "ts") return this.ts;
   if (name === "val") return this.val;
 
@@ -46,7 +46,8 @@ HHisItem.prototype.get = function(name, checked) {
  * @memerof HHisItem
  * returns {iterator}
  */
-HHisItem.prototype.iterator = function() {
+HHisItem.prototype.iterator = function () {
+  console.log("ITERATOR IN HHISITEM")
   function hasNext() {
     return cur < 1;
   }
@@ -68,7 +69,7 @@ HHisItem.prototype.iterator = function() {
  * @param {HVal} val
  * @return {HHisItem}
  */
-HHisItem.make = function(ts, val) {
+HHisItem.make = function (ts, val) {
   if (ts === 'undefined' || ts === null || val === 'undefined' || val === null)
     throw new Error("ts or val is undefined");
   return new HHisItem(ts, val);
@@ -80,13 +81,17 @@ HHisItem.make = function(ts, val) {
  * @param {HGrid} grid
  * @return {HHisItem[]}
  */
-HHisItem.gridToItems = function(grid) {
+HHisItem.gridToItems = function (grid) {
+  console.log("Grid to items")
   var ts = grid.col("ts");
+  console.log(ts)
   var val = grid.col("val");
+  console.log(val)
   var items = [];
   for (var i = 0; i < grid.numRows(); i++) {
     var row = grid.row(i);
     items[i] = new HHisItem(row.get(ts, true), row.get(val, false));
   }
+  console.log(items)
   return items;
 };

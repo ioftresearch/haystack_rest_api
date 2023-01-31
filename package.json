@@ -20,7 +20,14 @@
     "haystack"
   ],
   "dependencies": {
-    "moment-timezone": "^0.3.0"
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "moment-timezone": "^0.3.0",
+    "mongoose": "^6.8.4",
+    "mysql2": "^2.3.3",
+    "nodehaystack": "^2.0.3",
+    "sequelize": "^6.28.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

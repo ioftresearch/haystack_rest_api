@@ -2,7 +2,7 @@ module.exports.Reader = ReadableStream;
 module.exports.Writer = WritableStream;
 
 var Stream = require('stream'),
-    inherits = require('util').inherits;
+  inherits = require('util').inherits;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ReadableStream taken from string-stream with a GPL-3.0 license - http://opensource.org/licenses/GPL-3.0 //
@@ -13,7 +13,7 @@ var Stream = require('stream'),
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function ReadableStream(init) {
-  Stream.super_.call(this);
+  //Stream.super_.call(this);
   this._data = init || '';
 }
 inherits(ReadableStream, Stream.Readable);
@@ -52,25 +52,25 @@ ReadableStream.prototype.toString = function () {
 // Source available at https://github.com/mikanda/string-stream                                            //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function WritableStream (options) {
+function WritableStream(options) {
   Stream.Writable.call(this, options);
 }
 inherits(WritableStream, Stream.Writable);
 
-WritableStream.prototype.write = function(chunk, encoding, callback) {
+WritableStream.prototype.write = function (chunk, encoding, callback) {
   var ret = Stream.Writable.prototype.write.apply(this, arguments);
   if (!ret) this.emit('drain');
   return ret;
 }
-WritableStream.prototype._write = function(chunk, encoding, callback) {
+WritableStream.prototype._write = function (chunk, encoding, callback) {
   this.write(chunk, encoding, callback);
 };
-WritableStream.prototype.toString = function() {
+WritableStream.prototype.toString = function () {
   return this.toBuffer().toString();
 };
-WritableStream.prototype.toBuffer = function() {
+WritableStream.prototype.toBuffer = function () {
   var buffers = [];
-  this._writableState.getBuffer().forEach(function(data) {
+  this._writableState.getBuffer().forEach(function (data) {
     buffers.push(data.chunk);
   });
 

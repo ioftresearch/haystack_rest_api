@@ -14,34 +14,92 @@
  *
  * @constructor
  */
-function HStdOp() {}
+function HStdOp() { }
+
 module.exports = HStdOp;
 
 var url = require('url'),
-    HOp = require('./HOp'),
-    HDict = require('../HDict'),
-    HGrid = require('../HGrid'),
-    HGridBuilder = require('../HGridBuilder'),
-    HGridFormat = require('../io/HGridFormat'),
-    HHisItem = require('../HHisItem'),
-    HMarker = require('../HMarker'),
-    HNum = require('../HNum'),
-    HStr = require('../HStr'),
-    HUri = require('../HUri');
+  HOp = require('./HOp'),
+  HDict = require('../HDict'),
+  HGrid = require('../HGrid'),
+  HGridBuilder = require('../HGridBuilder'),
+  HGridFormat = require('../io/HGridFormat'),
+  HHisItem = require('../HHisItem'),
+  HMarker = require('../HMarker'),
+  HNum = require('../HNum'),
+  HStr = require('../HStr'),
+  HUri = require('../HUri');
+const { v4: uuidv4 } = require("uuid")
+
+/**
+ * @constructor
+ * @extends {HOp}
+ */
+function AddSiteOp() {
+  this.name = function () {
+    return "addSite"
+  }
+
+  this.summary = function () {
+    return "Add site to the server"
+  }
+  this.onService = function (db, req, callback) {
+    const row = req.row(0)
+    const geoState = row.getStr("geoState")
+    const geoCity = row.getStr("geoCity")
+    const area = row.getInt("area")
+    const uuid = uuidv4()
+    db.addSite(uuid, geoState, geoCity, area)
+    callback(null, req)
+    /*  db.addSite(function (err, dict) {
+       console.log("ON ADD SITE")
+     }) */
+  }
+}
+
+AddSiteOp.prototype = Object.create(HOp.prototype)
+
+
+/**
+ * @constructor
+ * @extends {HOp}
+ */
+function AddPointOp() {
+  this.name = function () {
+    return "addPoint"
+  }
+
+  this.summary = function () {
+    return "Add point for registered site"
+  }
+
+  this.onService = async function (db, req, callback) {
+    console.log("ON SERVICE ADD POINT")
+    const row = req.row(0)
+    const site = row.getRef("site")
+    const id = uuidv4()
+    const markers = row.getStr("markers")
+
+    callback(await db.addPoint(site, id, "", markers))
+  }
+
+}
+AddPointOp.prototype = Object.create(HOp.prototype)
 
 /**
  * @constructor
  * @extends {HOp}
  */
 function AboutOp() {
-  this.name = function() {
+  this.name = function () {
+    console.log("NAME ON ABOUT")
     return "about";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Summary information for server";
   };
-  this.onService = function(db, req, callback) {
-    db.about(function(err, dict) {
+  this.onService = function (db, req, callback) {
+    db.about(function (err, dict) {
       callback(null, HGridBuilder.dictToGrid(dict));
     });
   };
@@ -53,14 +111,15 @@ AboutOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function OpsOp() {
-  this.name = function() {
+  this.name = function () {
     return "ops";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Operations supported by this server";
   };
-  this.onService = function(db, req, callback) {
-    db.ops(function(err, ops) {
+  this.onService = function (db, req, callback) {
+    console.log("OPS")
+    db.ops(function (err, ops) {
       var b = new HGridBuilder();
       b.addCol("name");
       b.addCol("summary");
@@ -82,13 +141,13 @@ OpsOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function FormatsOp() {
-  this.name = function() {
+  this.name = function () {
     return "formats";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Grid data formats supported by this server";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     var b = new HGridBuilder();
     b.addCol("mime");
     b.addCol("read");
@@ -112,13 +171,13 @@ FormatsOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function ReadOp() {
-  this.name = function() {
+  this.name = function () {
     return "read";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Read entity records in database";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     // ensure we have one row
     if (req.isEmpty()) {
       callback(new Error("Request has no rows"));
@@ -134,7 +193,7 @@ function ReadOp() {
       db.readAll(filter, limit, callback);
     } else if (row.has("id")) {
       // read by ids
-      this.gridToIds(db, req, function(err, ids) {
+      this.gridToIds(db, req, function (err, ids) {
         db.readByIds(ids, false, callback);
       });
     } else {
@@ -149,20 +208,23 @@ ReadOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function NavOp() {
-  this.name = function() {
+  this.name = function () {
     return "nav";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Navigate record tree";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     // ensure we have one row
     var navId = null;
+    var type = null;
+    console.log("callback on service", callback)
     if (!req.isEmpty()) {
       var val = req.row(0).get("navId", false);
+      type = req.row(0).get("type")
       if (val instanceof HStr || val instanceof HUri) navId = val.val;
     }
-    db.nav(navId, callback);
+    db.nav(navId, type, callback);
   };
 }
 NavOp.prototype = Object.create(HOp.prototype);
@@ -172,13 +234,13 @@ NavOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function WatchSubOp() {
-  this.name = function() {
+  this.name = function () {
     return "watchSub";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Watch subscription";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     // check for watchId or watchId
     var watchId = null;
     var watchDis = null;
@@ -191,11 +253,11 @@ function WatchSubOp() {
 
     // open or lookup watch
     var watch = watchId === null ?
-        db.watchOpen(watchDis, lease) :
-        db.watch(watchId);
+      db.watchOpen(watchDis, lease) :
+      db.watch(watchId);
 
     // map grid to ids
-    this.gridToIds(db, req, function(err, ids) {
+    this.gridToIds(db, req, function (err, ids) {
       // subscribe and return resulting grid
       watch.sub(ids, callback);
     });
@@ -208,13 +270,13 @@ WatchSubOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function WatchUnsubOp() {
-  this.name = function() {
+  this.name = function () {
     return "watchUnsub";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Watch unsubscription";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     // lookup watch, silently ignore failure
     var watchId = req.meta().getStr("watchId");
     var watch = db.watch(watchId, false);
@@ -223,7 +285,7 @@ function WatchUnsubOp() {
     if (watch !== null) {
       if (req.meta().has("close")) watch.close(callback);
       else {
-        this.gridToIds(db, req, function(err, ids) {
+        this.gridToIds(db, req, function (err, ids) {
           watch.unsub(ids, callback);
         });
       }
@@ -241,13 +303,13 @@ WatchUnsubOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function WatchPollOp() {
-  this.name = function() {
+  this.name = function () {
     return "watchPoll";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Watch poll cov or refresh";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     // lookup watch
     var watchId = req.meta().getStr("watchId");
     var watch = db.watch(watchId);
@@ -264,27 +326,28 @@ WatchPollOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function PointWriteOp() {
-  this.name = function() {
+  this.name = function () {
     return "pointWrite";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Read/write writable point priority array";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     // get required point id
     if (req.isEmpty()) {
       callback(new Error("Request has no rows"));
       return;
     }
+    console.log("POINT WRITE")
     var row = req.row(0);
-    this.valToId(db, row.get("id"), function(err, id) {
+    this.valToId(db, row.get("id"), function (err, id) {
       // check for write
       if (row.has("level")) {
         var level = row.getInt("level");
         var who = row.getStr("who"); // be nice to have user fallback
         var val = row.get("val", false);
         var dur = row.get("duration", false);
-        db.pointWrite(id, level, val, who, dur, row, function(err) {
+        db.pointWrite(id, level, val, who, dur, row, function (err) {
           if (err) {
             callback(err);
             return;
@@ -304,20 +367,20 @@ PointWriteOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function HisReadOp() {
-  this.name = function() {
+  this.name = function () {
     return "hisRead";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Read time series from historian";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     if (req.isEmpty()) {
       callback(new Error("Request has no rows"));
       return;
     }
 
     var row = req.row(0);
-    this.valToId(db, row.get("id"), function(err, id) {
+    this.valToId(db, row.get("id"), function (err, id) {
       var range = row.getStr("range");
       db.hisRead(id, range, callback);
     });
@@ -330,20 +393,24 @@ HisReadOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function HisWriteOp() {
-  this.name = function() {
+  this.name = function () {
     return "hisWrite";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Write time series data to historian";
   };
-  this.onService = function(db, req, callback) {
+  this.onService = function (db, req, callback) {
     if (req.isEmpty()) {
       callback(new Error("Request has no rows"));
       return;
     }
-    this.valToId(db, req.meta().get("id"), function(err, id) {
+    this.valToId(db, req.meta().get("id"), function (err, id) {
+      console.log("INTEMS")
+      console.log(req.meta())
+      console.log(id)
       var items = HHisItem.gridToItems(req);
-      db.hisWrite(id, items, function(err) {
+      console.log(items)
+      db.hisWrite(id, items, function (err) {
         if (err) callback(err);
         else callback(null, HGrid.EMPTY);
       });
@@ -357,14 +424,14 @@ HisWriteOp.prototype = Object.create(HOp.prototype);
  * @extends {HOp}
  */
 function InvokeActionOp() {
-  this.name = function() {
+  this.name = function () {
     return "invokeAction";
   };
-  this.summary = function() {
+  this.summary = function () {
     return "Invoke action on target entity";
   };
-  this.onService = function(db, req, callback) {
-    this.valToId(db, req.meta().get("id"), function(err, id) {
+  this.onService = function (db, req, callback) {
+    this.valToId(db, req.meta().get("id"), function (err, id) {
       var action = req.meta().getStr("action");
       var args = HDict.EMPTY;
       if (req.numRows() > 0) args = req.row(0);
@@ -373,6 +440,12 @@ function InvokeActionOp() {
   };
 }
 InvokeActionOp.prototype = Object.create(HOp.prototype);
+
+/** Add site to the server */
+HStdOp.addsite = new AddSiteOp();
+
+/** Add point to registered site */
+HStdOp.addPoint = new AddPointOp();
 
 /** List the registered operations. */
 HStdOp.about = new AboutOp();

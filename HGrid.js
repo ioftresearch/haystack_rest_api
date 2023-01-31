@@ -24,7 +24,7 @@ function HGrid(dict, cols, rowList) {
   this.dict = dict;
   this.cols = cols;
 
-  if (typeof(dict) === 'undefined' || dict === null) throw new Error("metadata cannot be null");
+  if (typeof (dict) === 'undefined' || dict === null) throw new Error("metadata cannot be null");
 
   var i;
   this.rows = [];
@@ -39,15 +39,15 @@ function HGrid(dict, cols, rowList) {
     var col = cols[i];
     var colName = col.name();
     var cn = this.colsByName[colName];
-    if (typeof(cn) !== 'undefined' && cn !== null) throw new Error("Duplicate col name: " + colName);
+    if (typeof (cn) !== 'undefined' && cn !== null) throw new Error("Duplicate col name: " + colName);
     this.colsByName[colName] = col;
   }
 }
 module.exports = HGrid;
 
 var HCol = require('./HCol'),
-    HDict = require('./HDict'),
-    HZincWriter = require('./io/HZincWriter');
+  HDict = require('./HDict'),
+  HZincWriter = require('./io/HZincWriter');
 
 /**
  * Empty grid with one column called "empty" and zero rows
@@ -62,7 +62,7 @@ HGrid.EMPTY = new HGrid(HDict.EMPTY, [new HCol(0, "empty", HDict.EMPTY)], []);
  * Return grid level meta
  * @return {HDict}
  */
-HGrid.prototype.meta = function() {
+HGrid.prototype.meta = function () {
   return this.dict;
 };
 
@@ -70,7 +70,7 @@ HGrid.prototype.meta = function() {
  * Error grid have the dict.err marker tag
  * @return {boolean}
  */
-HGrid.prototype.isErr = function() {
+HGrid.prototype.isErr = function () {
   return this.dict.has("err");
 };
 
@@ -78,7 +78,7 @@ HGrid.prototype.isErr = function() {
  * Return if number of rows is zero
  * @return {boolean}
  */
-HGrid.prototype.isEmpty = function() {
+HGrid.prototype.isEmpty = function () {
   return this.numRows() === 0;
 };
 
@@ -86,7 +86,7 @@ HGrid.prototype.isEmpty = function() {
  * Return number of rows
  * @return {int}
  */
-HGrid.prototype.numRows = function() {
+HGrid.prototype.numRows = function () {
   return this.rows.length;
 };
 
@@ -94,7 +94,7 @@ HGrid.prototype.numRows = function() {
  * Get a row by its zero based index
  * @return {HRow}
  */
-HGrid.prototype.row = function(row) {
+HGrid.prototype.row = function (row) {
   return this.rows[row];
 };
 
@@ -102,7 +102,7 @@ HGrid.prototype.row = function(row) {
  * Get number of columns
  * @return {int}
  */
-HGrid.prototype.numCols = function() {
+HGrid.prototype.numCols = function () {
   return this.cols.length;
 };
 
@@ -111,13 +111,13 @@ HGrid.prototype.numCols = function() {
  * return null, otherwise throw UnknownNameException
  * @return {HCol}
  */
-HGrid.prototype.col = function(name, checked) {
+HGrid.prototype.col = function (name, checked) {
   // Get a column by its index
-  if (typeof(name) === 'number') return this.cols[name];
+  if (typeof (name) === 'number') return this.cols[name];
   var _checked = checked;
-  if (typeof(_checked) === 'undefined') _checked = true;
+  if (typeof (_checked) === 'undefined') _checked = true;
   var col = this.colsByName[name];
-  if (typeof(col) !== 'undefined' && col !== null) return col;
+  if (typeof (col) !== 'undefined' && col !== null) return col;
   if (_checked) throw new Error(name);
   return null;
 };
@@ -126,15 +126,16 @@ HGrid.prototype.col = function(name, checked) {
  * Create iteratator to walk each row
  * @return {iterator}
  */
-HGrid.prototype.iterator = function() {
+HGrid.prototype.iterator = function () {
+  console.log("ITERATOR IN HGRID")
   var pos = 0;
   var r = this.rows;
   return {
-    next: function() {
+    next: function () {
       if (this.hasNext()) return r[pos++];
       throw new Error("No Such Element");
     },
-    hasNext: function() {
+    hasNext: function () {
       return pos < r.length;
     }
   };
@@ -145,10 +146,10 @@ HGrid.prototype.iterator = function() {
 //////////////////////////////////////////////////////////////////////////
 
 /** Debug dump - this is Zinc right now. */
-HGrid.prototype.dump = function(out) {
+HGrid.prototype.dump = function (out) {
   var _out = out;
-  if (typeof(_out) === 'undefined') _out = console;
-  HZincWriter.gridToString(this, function(err, str) {
+  if (typeof (_out) === 'undefined') _out = console;
+  HZincWriter.gridToString(this, function (err, str) {
     _out.log(str);
   });
 };
