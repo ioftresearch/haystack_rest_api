@@ -25,4 +25,22 @@ La clave `cols` es un arreglo de mapas, donde cada mapa tiene un único par clav
 
 La clave `row` es un arreglo de mapas, donde cada mapa tiene tantos pares clave-valor como elementos en el arreglo de la clave `cols`, las claves **siempre** deben coincidir con el nombre y el order de las claves en `cols`. Por ejemplo: `"rows":[{"geoCity":"s:Guayaquil", "geoState":"s:ESPOL", "area": "n:5000 KM"}]`
 
+## Endpoints para enviar las peticiones
+La variable `url` se debe reemplazar por el url donde esté alojado el rest api, en caso de trabajar en local debe ser `http://localhost:3000`, en caso de tenerlo alojado en un servidor en la nube cambiar la variable por la url adecuada.
 
+* `ops`: Esta operación permite conocer las operaciones disponibles. Se utiliza el método **GET**. El endpoint es `url/ops`.
+* `nav`: Esta operación permite leer los sitios y puntos registrados en la base de datos. Se utiliza el método **GET**.Se debe incluir el parámetro `type` que puede tener valor `site` o `point`. El enpoint es `url/nav?type=site`
+* `read`: Esta operación permite obtener información sobre un punto. Se utiliza el método **GET**. Se debe incluir el `id` del punto a leer con un `@` antes del id. El endpoint es `url/read?id=@12345`
+* `hisRead`: Esta operación permite leer las mediciones obtenidas por un dispositivo (punto). Se utiliza el método **GET**. Se debe incluir el `id` del dispositivo y el `range` el cual puede ser `yesterday` o dos fechas separadas por coma, por ejemplo `2023-01-01,2023-01-31`. El endpoint es `url/hisRead?id=ABC&range=yesterday`
+* `hisWrite`: Esta operación permite escribir mediciones obtenidas por el dispositivo (punto). Se utiliza el método **POST**. Se debe incluir el `id` del dispositivo en el tag `meta` del cuerpo de la petición. Las columnas deben ser `ts` y `val` y en el tag `rows` se deben incluir valores para cada columna. El endpoint es `url/hisWrite`. Un ejemplo de la petición es 
+```
+{
+"_kind": "grid",
+"meta": {"ver":"2.0", "id":"r:c6c5f4a5-5252-4f04-9e4e-7203d6107a0b"},
+"cols": [{"name":"ts"},{"name":"val"}],
+"rows":[{"ts":"t:2023-01-24T23:00:00-05:00 New_York", "val":"n:41.1"}]
+}
+```
+* `about`: Esta operación brinda información sobre el servidor. El método utilizado es **GET**. El enpoint es `url/about`
+* `formats`: Esta operación brinda información sobre los formatos aceptados para enviar o recibir los datos. El método utilizado es **GET**. El enpoint es `url/formats`
+* 
